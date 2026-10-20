@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/layout :: head('Arma tu pack')}">
+    <title>Arma tu pack · Decanly</title>
+  </head>
+  <body data-route="packs" data-page="packs/index">
+    <div th:replace="~{fragments/layout :: cabecera}"></div>
+    <div
+      id="connection-status"
+      class="connection-status"
+      role="status"
+      hidden=""
+    ></div>
+    <main id="app" tabindex="-1">
+      <section class="page-head">
+        <div class="eyebrow">Tu pack, tus reglas</div>
+        <h1>Una colección <em>muy tuya.</em></h1>
+        <p>
+          Elige perfumes distintos, combina tamaños y descubre nuevas versiones
+          de ti.
+        </p>
+      </section>
+      <section class="section split pack-builder" style="padding-top: 15px">
+        <div class="pack-catalog">
+          <input
+            class="field"
+            id="search"
+            type="search"
+            placeholder="Busca un perfume para tu pack…"
+            aria-label="Buscar perfumes para el pack"
+            value=""
+          />
+          <div class="toolbar">
+            <span id="result-count">50 fragancias para descubrir</span
+            ><select id="sort" aria-label="Ordenar perfumes">
+              <option value="featured" selected>Nuestra selección</option>
+              <option value="price-up">Menor precio</option>
+              <option value="price-down">Mayor precio</option>
+              <option value="name">Nombre A–Z</option>
+            </select>
+          </div>
+          <div class="grid" id="product-grid"></div>
+        </div>
+        <aside class="panel sticky" id="pack-summary" tabindex="-1">
+          <div class="eyebrow">Hecho por ti</div>
+          <h2>Tu colección</h2>
+          <p class="hint">Mezcla 3 ml, 5 ml y 10 ml como prefieras.</p>
+          <div class="progress"><span style="width: 0%"></span></div>
+
+          <div class="pack-list">
+            <p class="hint">
+              Tu próximo favorito te está esperando. Añade perfumes de la
+              colección.
+            </p>
+          </div>
+          <div class="summary-row">
+            <span>Subtotal</span><span>S/ 0.00</span>
+          </div>
+          <div class="summary-row">
+            <span>Tu ahorro</span><span>−S/ 0.00</span>
+          </div>
+          <div class="summary-row total">
+            <strong>Total del pack</strong><strong>S/ 0.00</strong>
+          </div>
+          <button class="btn" data-action="pack-cart" disabled>
+            Añadir pack al carrito ↗
+          </button>
+          <p class="hint">
+            Los descuentos no se acumulan: aplicamos la mejor opción. Envío por
+            coordinar.
+          </p>
+        </aside>
+      </section>
+      <button type="button" class="pack-mobile-bar" data-action="pack-review">
+        <span><small>Tu pack · 0 decants</small><strong>S/ 0.00</strong></span
+        ><span>Ver selección</span>
+      </button>
+    </main>
+    <div th:replace="~{fragments/layout :: pie}"></div>
+  </body>
+</html>

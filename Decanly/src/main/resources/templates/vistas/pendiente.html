@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/layout :: head('Módulo pendiente')}">
+    <title>Módulo pendiente · Decanly</title>
+  </head>
+  <body data-route="cuenta" data-page="vistas/pendiente">
+    <div th:replace="~{fragments/layout :: cabecera}"></div>
+    <div
+      id="connection-status"
+      class="connection-status"
+      role="status"
+      hidden
+    ></div>
+    <main id="app" tabindex="-1">
+      <section class="admin-shell">
+        <aside th:replace="~{fragments/admin :: sidebar}"></aside>
+        <div class="admin-main">
+          <div class="panel">
+            <h1>Siguiente módulo del proyecto</h1>
+            <p th:text="${mensaje}"></p>
+            <a class="btn" th:href="@{/producto}">Volver a perfumes</a>
+          </div>
+        </div>
+      </section>
+    </main>
+    <div th:replace="~{fragments/layout :: pie}"></div>
+  </body>
+</html>

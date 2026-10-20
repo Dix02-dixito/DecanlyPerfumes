@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Revisa la solicitud · Decanly</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link rel="stylesheet" th:href="@{/css/fonts.css}" />
+  </head>
+  <body>
+    <main class="section">
+      <h1>No se pudo completar la solicitud.</h1>
+      <p
+        th:text="${mensaje ?: 'Recarga la página y comprueba tus permisos.'}"
+      ></p>
+      <a class="btn" th:href="@{/producto}">Volver al panel</a
+      ><a class="text-link" th:href="@{/cuenta}">Ir a Cuenta</a>
+    </main>
+  </body>
+</html>

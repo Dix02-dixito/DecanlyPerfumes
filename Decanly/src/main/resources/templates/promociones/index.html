@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/layout :: head('Promociones')}">
+    <title>Promociones · Decanly</title>
+  </head>
+  <body data-route="promociones" data-page="promociones/index">
+    <div th:replace="~{fragments/layout :: cabecera}"></div>
+    <div
+      id="connection-status"
+      class="connection-status"
+      role="status"
+      hidden=""
+    ></div>
+    <main id="app" tabindex="-1">
+      <section class="page-head">
+        <div class="eyebrow">La selección Decanly</div>
+        <h1>Un pack. Muchas versiones de ti.</h1>
+        <p>
+          Tres o más fragancias, tus tamaños favoritos y un precio para
+          descubrir más.
+        </p>
+      </section>
+      <section class="section promotions-section">
+        <div class="promotion-note">
+          <svg
+            class="ui-icon"
+            viewbox="0 0 24 24"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path d="M3 3h8l10 10-8 8L3 11V3Z"></path>
+            <circle cx="7" cy="7" r="1"></circle>
+          </svg>
+          <span
+            >Hasta <b>10% de ahorro</b> en packs de 3 perfumes distintos.
+            Aplicamos la mejor oferta, sin acumular descuentos.</span
+          ><a href="/packs" th:href="@{/packs}"
+            >Arma el tuyo
+            <svg
+              class="ui-icon"
+              viewbox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d="M4 12h16m-6-6 6 6-6 6"></path></svg
+          ></a>
+        </div>
+        <div class="promo-grid"></div>
+      </section>
+    </main>
+    <div th:replace="~{fragments/layout :: pie}"></div>
+  </body>
+</html>

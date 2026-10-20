@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
+  <body>
+    <aside th:fragment="sidebar" class="admin-sidebar">
+      <span class="admin-label">DECANLY STUDIO</span>
+      <p>Tu colección,<br />bajo control.</p>
+      <nav aria-label="Secciones de administración">
+        <a th:href="@{/producto}"
+          ><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="3" width="7" height="7" rx="1" />
+            <rect x="3" y="14" width="7" height="7" rx="1" />
+            <rect x="14" y="14" width="7" height="7" rx="1" /></svg
+          >Productos y stock</a
+        ><a th:href="@{/promocion}"
+          ><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 3h8l10 10-8 8L3 11V3Z" />
+            <circle cx="7" cy="7" r="1" /></svg
+          >Promociones y packs</a
+        ><a th:href="@{/pedidos}"
+          ><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 4h12v17H6zM9 2h6v4H9zM9 10h6M9 14h6" /></svg
+          >Pedidos</a
+        >
+      </nav>
+      <a th:href="@{/}">Ver tienda ↗</a>
+      <form th:action="@{/logout}" method="post">
+        <button class="text-link" type="submit">Cerrar sesión</button>
+      </form>
+    </aside>
+  </body>
+</html>

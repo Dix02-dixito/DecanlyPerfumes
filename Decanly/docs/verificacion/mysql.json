@@ -1,0 +1,25 @@
+{
+  "version": "8.4.7",
+  "resultado": "aprobado",
+  "comprobaciones": 18,
+  "detalle": [
+    "MySQL 8.4.7 real",
+    "50 perfumes, 50 fotos, 150 presentaciones y 9 packs importados",
+    "Migración conserva usuario y hash y agrega rol",
+    "Rutas administrativas protegidas",
+    "Login sin CSRF rechazado",
+    "Login BCrypt con cuenta anterior",
+    "Sesión persiste entre peticiones",
+    "Packs devuelven perfume, tamaño y cantidad",
+    "POST MVC crea perfume y fotos",
+    "Variantes y galería guardadas en MySQL",
+    "Bytes de imagen recuperados del BLOB",
+    "Edición actualiza stock de 5 ml",
+    "Formulario antiguo no sobrescribe cambios",
+    "Baja lógica oculta perfume y foto públicos",
+    "Restauración publica de nuevo",
+    "Packs no publican perfumes retirados",
+    "Logout invalida la sesión",
+    "Datos conservados tras reiniciar; usuario no duplicado"
+  ]
+}

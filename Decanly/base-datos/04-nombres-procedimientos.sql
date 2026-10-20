@@ -1,0 +1,26 @@
+-- SOLO NOMBRES. Este archivo no crea ni ejecuta ningún procedimiento.
+-- El backend usa JPA/Hibernate y consultas parametrizadas; no depende de procedimientos.
+-- sp_usuario_buscar_por_email
+-- sp_usuario_crear
+-- sp_marca_listar
+-- sp_marca_guardar
+-- sp_producto_listar
+-- sp_producto_obtener
+-- sp_producto_crear
+-- sp_producto_actualizar
+-- sp_producto_eliminar
+-- sp_presentacion_actualizar
+-- sp_imagen_guardar
+-- sp_imagen_obtener
+-- sp_galeria_reemplazar
+-- sp_pack_listar
+-- sp_pack_crear
+-- sp_pack_actualizar
+-- sp_pack_eliminar
+-- sp_configuracion_obtener
+-- sp_configuracion_actualizar
+-- sp_pedido_crear
+-- sp_pedido_obtener_por_clave
+-- sp_pedido_listar
+-- sp_pedido_cambiar_estado
+-- sp_pedido_vencer_reservas

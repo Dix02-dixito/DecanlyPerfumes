@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.cibertec.app.IntegracionTests
+-------------------------------------------------------------------------------
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 21.39 s -- in com.cibertec.app.IntegracionTests

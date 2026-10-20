@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/layout :: head('Nuevo perfume')}">
+    <title>Nuevo perfume · Decanly</title>
+  </head>
+  <body data-route="cuenta" data-page="producto/create">
+    <div th:replace="~{fragments/layout :: cabecera}"></div>
+    <div
+      id="connection-status"
+      class="connection-status"
+      role="status"
+      hidden
+    ></div>
+    <main id="app" tabindex="-1">
+      <section class="admin-shell">
+        <aside th:replace="~{fragments/admin :: sidebar}"></aside>
+        <div class="admin-main">
+          <div th:replace="~{producto/formulario :: formulario}"></div>
+        </div>
+      </section>
+    </main>
+    <div th:replace="~{fragments/layout :: pie}"></div>
+  </body>
+</html>

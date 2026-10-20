@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/layout :: head('Detalle de perfume')}">
+    <title>Detalle de perfume · Decanly</title>
+  </head>
+  <body data-route="catalogo" data-page="perfume/detalle">
+    <div th:replace="~{fragments/layout :: cabecera}"></div>
+    <div
+      id="connection-status"
+      class="connection-status"
+      role="status"
+      hidden=""
+    ></div>
+    <main id="app" tabindex="-1">
+      <section class="section detail-page">
+        <a class="text-link" href="/catalogo" th:href="@{/catalogo}"
+          >← Volver al catálogo</a
+        >
+        <div id="standalone-detail"></div>
+      </section>
+    </main>
+    <div th:replace="~{fragments/layout :: pie}"></div>
+  </body>
+</html>

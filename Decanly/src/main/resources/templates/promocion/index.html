@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/layout :: head('Promociones y packs')}">
+    <title>Promociones y packs · Decanly</title>
+  </head>
+  <body data-route="cuenta" data-page="promocion/index">
+    <div th:replace="~{fragments/layout :: cabecera}"></div>
+    <div
+      id="connection-status"
+      class="connection-status"
+      role="status"
+      hidden
+    ></div>
+    <main id="app" tabindex="-1">
+      <section class="admin-shell">
+        <aside th:replace="~{fragments/admin :: sidebar}"></aside>
+        <div class="admin-main">
+          <div class="admin-heading">
+            <div>
+              <span class="eyebrow">Promociones de MySQL</span>
+              <h1>Tu selección de packs.</h1>
+              <p>Consulta los packs publicados y sus perfumes.</p>
+            </div>
+          </div>
+          <p class="notice">
+            El backend recibido implementa la consulta de packs. Crear, editar y
+            retirar packs desde el panel es el siguiente mantenimiento
+            pendiente.
+          </p>
+          <div class="admin-pack-grid">
+            <article class="admin-pack-card" th:each="p : ${packs}">
+              <div class="admin-pack-art">
+                <img
+                  th:each="detalle : ${p.detalles}"
+                  th:src="@{/imagenes/{id}(id=${detalle.producto.imagen.id})}"
+                  th:alt="${detalle.producto.nombre}"
+                />
+              </div>
+              <div class="admin-pack-info">
+                <span class="brand" th:text="${p.etiqueta}"></span>
+                <h3 th:text="${p.nombre}"></h3>
+                <p th:text="${p.descripcion}"></p>
+                <ul>
+                  <li
+                    th:each="detalle : ${p.detalles}"
+                    th:text="${detalle.producto.nombre}+' · '+${detalle.cantidad}+' × '+${detalle.ml}+' ml'"
+                  ></li>
+                </ul>
+              </div>
+            </article>
+          </div>
+          <p th:if="${#lists.isEmpty(packs)}">
+            No hay packs publicados con todos sus perfumes activos.
+          </p>
+        </div>
+      </section>
+    </main>
+    <div th:replace="~{fragments/layout :: pie}"></div>
+  </body>
+</html>

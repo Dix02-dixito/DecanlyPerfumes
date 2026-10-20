@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/layout :: head('Catálogo')}">
+    <title>Catálogo · Decanly</title>
+  </head>
+  <body data-route="catalogo" data-page="catalogo/index">
+    <div th:replace="~{fragments/layout :: cabecera}"></div>
+    <div
+      id="connection-status"
+      class="connection-status"
+      role="status"
+      hidden=""
+    ></div>
+    <main id="app" tabindex="-1">
+      <section class="page-head">
+        <div class="eyebrow">La colección Decanly</div>
+        <h1>Tu próximo favorito.</h1>
+        <p>Perfumes que quieres conocer. En decants de 3, 5 y 10 ml.</p>
+      </section>
+      <section class="section shop">
+        <aside class="filters">
+          <div class="filter-heading">
+            <svg
+              class="ui-icon"
+              viewbox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d="M4 6h16M4 12h16M4 18h16"></path>
+              <circle cx="8" cy="6" r="2"></circle>
+              <circle cx="16" cy="12" r="2"></circle>
+              <circle cx="10" cy="18" r="2"></circle>
+            </svg>
+            Filtrar colección
+          </div>
+          <label for="search">BUSCAR PERFUME</label
+          ><input
+            id="search"
+            class="field"
+            placeholder="Nombre, marca o nota…"
+            value=""
+            type="search"
+          />
+          <label for="brand-filter">MARCA</label
+          ><select id="brand-filter" class="field">
+            <option value="">Todas las marcas</option>
+            <option>Afnan</option>
+            <option>Al Haramain</option>
+            <option>Armaf</option>
+            <option>Azzaro</option>
+            <option>Carolina Herrera</option>
+            <option>Chanel</option>
+            <option>Creed</option>
+            <option>Dior</option>
+            <option>Dolce &amp; Gabbana</option>
+            <option>Emporio Armani</option>
+            <option>French Avenue</option>
+            <option>Giorgio Armani</option>
+            <option>Jean Paul Gaultier</option>
+            <option>Lattafa</option>
+            <option>Prada</option>
+            <option>Rabanne</option>
+            <option>Rasasi</option>
+            <option>Valentino</option>
+            <option>Versace</option>
+            <option>Xerjoff</option>
+            <option>Yves Saint Laurent</option>
+          </select>
+          <label for="category-filter">TU ESTILO</label
+          ><select class="field" id="category-filter">
+            <option value="">Todos los aromas</option>
+            <option>Verano</option>
+            <option>Invierno</option>
+            <option>Dulce</option>
+            <option>Amaderado</option>
+            <option>Limpio</option>
+            <option>Floral</option>
+          </select>
+          <label>OCASIÓN</label>
+          <div class="filter-buttons">
+            <button class="selected" data-action="occasion" data-value="">
+              Todas</button
+            ><button class="" data-action="occasion" data-value="Día">
+              Día</button
+            ><button class="" data-action="occasion" data-value="Noche">
+              Noche
+            </button>
+          </div>
+          <div class="format-note">
+            <svg
+              class="ui-icon"
+              viewbox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d="M9 3h6v4H9V3Zm0 4v3H7v11h10V10h-2V7M7 13h10"></path>
+            </svg>
+            <p>
+              <b>Una fragancia, tres tamaños.</b><br />3 ml para probar · 5 ml
+              para descubrir<br />10 ml para llevar contigo
+            </p>
+          </div>
+          <button class="text-link clear" data-action="clear-filters">
+            Limpiar filtros
+            <svg
+              class="ui-icon"
+              viewbox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d="m6 6 12 12M6 18 18 6"></path>
+            </svg>
+          </button>
+        </aside>
+        <div>
+          <div class="toolbar">
+            <span id="result-count">50 fragancias para descubrir</span
+            ><select id="sort" aria-label="Ordenar perfumes">
+              <option value="featured" selected>Nuestra selección</option>
+              <option value="price-up">Menor precio</option>
+              <option value="price-down">Mayor precio</option>
+              <option value="name">Nombre A–Z</option>
+            </select>
+          </div>
+          <div class="grid" id="product-grid"></div>
+        </div>
+      </section>
+    </main>
+    <div th:replace="~{fragments/layout :: pie}"></div>
+  </body>
+</html>

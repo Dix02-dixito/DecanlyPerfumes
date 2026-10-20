@@ -1,0 +1,2 @@
+80 comprobaciones de frontend aprobadas con JSDOM y CSS Tree.
+Respuestas preparadas de API; las peticiones reales se comprueban por separado con JUnit y MySQL.

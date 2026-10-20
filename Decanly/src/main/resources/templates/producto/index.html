@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/layout :: head('Productos y stock')}">
+    <title>Productos y stock · Decanly</title>
+  </head>
+  <body data-route="cuenta" data-page="producto/index">
+    <div th:replace="~{fragments/layout :: cabecera}"></div>
+    <div
+      id="connection-status"
+      class="connection-status"
+      role="status"
+      hidden
+    ></div>
+    <main id="app" tabindex="-1">
+      <section class="admin-shell">
+        <aside th:replace="~{fragments/admin :: sidebar}"></aside>
+        <div class="admin-main">
+          <div class="admin-heading">
+            <div>
+              <span class="eyebrow">Panel de administración</span>
+              <h1>Tu colección.</h1>
+              <p>
+                Gestiona los perfumes, sus fotografías y el stock de cada
+                tamaño.
+              </p>
+            </div>
+            <a class="btn" th:href="@{/producto/new}">Nuevo perfume +</a>
+          </div>
+          <p
+            class="notice"
+            role="status"
+            th:if="${exito}"
+            th:text="${exito}"
+          ></p>
+          <div class="admin-stats">
+            <div class="stat">
+              <strong th:text="${totalProductos}"></strong
+              ><span>Perfumes registrados</span>
+            </div>
+            <div class="stat">
+              <strong th:text="${productosConStock}"></strong
+              ><span>Publicados con stock</span>
+            </div>
+          </div>
+          <form class="admin-toolbar" th:action="@{/producto}" method="get">
+            <label for="admin-search">Buscar perfume o marca</label
+            ><input
+              class="field"
+              id="admin-search"
+              type="search"
+              name="q"
+              th:value="${q}"
+              placeholder="Nombre o marca"
+            /><button class="btn light" type="submit">Buscar</button>
+          </form>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Perfume</th>
+                  <th>Precios y stock</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="p : ${productos}">
+                  <td data-label="Perfume">
+                    <div class="native-product">
+                      <img
+                        th:src="@{/imagenes/{id}(id=${p.imagen.id})}"
+                        th:alt="${p.nombre}"
+                      />
+                      <div>
+                        <small th:text="${p.marca.nombre}"></small
+                        ><strong th:text="${p.nombre}"></strong
+                        ><span
+                          th:text="${p.descuento} + '% de descuento'"
+                        ></span>
+                      </div>
+                    </div>
+                  </td>
+                  <td data-label="Precios y stock">
+                    <div class="variant-line" th:each="v : ${p.presentaciones}">
+                      <b th:text="${v.ml}+' ml'"></b
+                      ><span
+                        th:text="'S/ ' + ${#numbers.formatDecimal(v.precio,1,2,'POINT')}"
+                      ></span
+                      ><span th:text="${v.stock}+' unidades'"></span>
+                    </div>
+                  </td>
+                  <td data-label="Estado">
+                    <span
+                      class="status-pill"
+                      th:classappend="${!p.activo} ? 'inactive' : ''"
+                      th:text="${!p.activo} ? 'Retirado' : (${p.conStock} ? 'Publicado' : 'Agotado')"
+                    ></span>
+                  </td>
+                  <td data-label="Acciones">
+                    <div class="native-actions">
+                      <a
+                        class="btn light"
+                        th:href="@{/producto/edit/{id}(id=${p.id})}"
+                        >Editar</a
+                      >
+                      <form
+                        th:if="${p.activo}"
+                        th:action="@{/producto/delete/{id}(id=${p.id})}"
+                        method="post"
+                      >
+                        <input
+                          type="hidden"
+                          name="version"
+                          th:value="${p.version}"
+                        /><button class="btn light" type="submit">
+                          Retirar
+                        </button>
+                      </form>
+                      <form
+                        th:unless="${p.activo}"
+                        th:action="@{/producto/restore/{id}(id=${p.id})}"
+                        method="post"
+                      >
+                        <input
+                          type="hidden"
+                          name="version"
+                          th:value="${p.version}"
+                        /><button class="btn light" type="submit">
+                          Restaurar
+                        </button>
+                      </form>
+                      <form
+                        th:if="${p.conStock}"
+                        th:action="@{/producto/agotado/{id}(id=${p.id})}"
+                        method="post"
+                      >
+                        <input
+                          type="hidden"
+                          name="version"
+                          th:value="${p.version}"
+                        /><button class="text-link" type="submit">
+                          Marcar agotado
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(productos)}">
+                  <td colspan="4">No se encontraron perfumes.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+    <div th:replace="~{fragments/layout :: pie}"></div>
+  </body>
+</html>
