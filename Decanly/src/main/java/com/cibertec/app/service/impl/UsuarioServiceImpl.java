@@ -1,56 +1,19 @@
 package com.cibertec.app.service.impl;
-
-import java.util.Optional;
-
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.cibertec.app.entity.Usuario;
-import com.cibertec.app.repository.UsuarioRepository;
 import com.cibertec.app.service.UsuarioService;
-
+import org.springframework.stereotype.Service;
 @Service
-public class UsuarioServiceImpl
-        implements UsuarioService, UserDetailsService {
-
-    private final UsuarioRepository usuarioRepository;
-
-    public UsuarioServiceImpl(
-            UsuarioRepository usuarioRepository) {
-        this.usuarioRepository = usuarioRepository;
+public class UsuarioServiceImpl implements UsuarioService {
+    // TODO integrante 4: login e integración: completar; aún no cambia MySQL.
+    @Override public boolean login(String correo, String clave) {
+        throw new UnsupportedOperationException("Pendiente: Usuario.login");
     }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<Usuario> buscarPorCorreo(String correo) {
-        if (correo == null || correo.isBlank()) {
-            return Optional.empty();
-        }
-
-        return usuarioRepository.findByCorreoIgnoreCase(
-            correo.trim()
-        );
+    // TODO integrante 4: login e integración: completar; aún no cambia MySQL.
+    @Override public void cerrarSesion() {
+        throw new UnsupportedOperationException("Pendiente: Usuario.cerrarSesion");
     }
-
-    @Override
-    @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(String correo) {
-
-        Usuario usuario = buscarPorCorreo(correo)
-            .orElseThrow(() ->
-                new UsernameNotFoundException(
-                    "Credenciales incorrectas"
-                )
-            );
-
-        return User.withUsername(usuario.getCorreo())
-            .password(usuario.getClaveHash())
-            .roles(usuario.getRol())
-            .disabled(!usuario.isActivo())
-            .build();
+    // TODO integrante 4: login e integración: completar; aún no cambia MySQL.
+    @Override public void guardar(Usuario usuario) {
+        throw new UnsupportedOperationException("Pendiente: Usuario.guardar");
     }
 }

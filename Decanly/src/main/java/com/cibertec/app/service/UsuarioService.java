@@ -1,10 +1,8 @@
 package com.cibertec.app.service;
-
-import java.util.Optional;
-
-import com.cibertec.app.entity.Usuario;
-
+import com.cibertec.app.entity.*;
+// Integrante 4: login e integración. Firmas iniciales: completar parámetros según la guía.
 public interface UsuarioService {
-
-    Optional<Usuario> buscarPorCorreo(String correo);
+    boolean login(String correo, String clave);
+    void cerrarSesion();
+    void guardar(Usuario usuario);
 }

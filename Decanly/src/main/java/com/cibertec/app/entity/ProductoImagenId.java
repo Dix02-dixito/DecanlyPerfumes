@@ -1,13 +1,14 @@
 package com.cibertec.app.entity;
 
-import lombok.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
-@EqualsAndHashCode
+@AllArgsConstructor
 public class ProductoImagenId implements java.io.Serializable {
-    private static final long serialVersionUID = 1L;
-    private Long productoId;
-    private Long imagenId;
+	private static final long serialVersionUID = 1L;
+	private Long productoId;
+	private Long imagenId;
 }

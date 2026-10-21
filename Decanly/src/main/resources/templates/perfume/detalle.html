@@ -1,24 +1,27 @@
-<!doctype html>
-<html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
-  <head th:replace="~{fragments/layout :: head('Detalle de perfume')}">
-    <title>Detalle de perfume · Decanly</title>
-  </head>
-  <body data-route="catalogo" data-page="perfume/detalle">
-    <div th:replace="~{fragments/layout :: cabecera}"></div>
-    <div
-      id="connection-status"
-      class="connection-status"
-      role="status"
-      hidden=""
-    ></div>
-    <main id="app" tabindex="-1">
-      <section class="section detail-page">
-        <a class="text-link" href="/catalogo" th:href="@{/catalogo}"
-          >← Volver al catálogo</a
-        >
-        <div id="standalone-detail"></div>
-      </section>
-    </main>
-    <div th:replace="~{fragments/layout :: pie}"></div>
-  </body>
-</html>
+<!doctype html><html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Detalle de perfume')}"><title>Detalle de perfume</title></head><body>
+<div th:replace="~{fragments/layout :: cabecera}"></div><main id="app" tabindex="-1">
+
+
+<section class="section detail-page"><a class="text-link" th:href="@{/catalogo}">← Volver al catálogo</a>
+<div id="standalone-detail"><div class="detail">
+  <div class="native-gallery"><img class="native-cover" th:src="@{/imagenes/{id}(id=${p.imagen.id})}" th:alt="${p.nombre}"/>
+    <details th:if="${!#lists.isEmpty(galeria)}"><summary>Ver más fotografías</summary>
+    <img th:each="foto : ${galeria}" th:src="@{/imagenes/{id}(id=${foto.imagenId})}" th:alt="${foto.descripcion}"/></details>
+  </div>
+  <div class="detail-copy"><span class="brand" th:text="${p.marca.nombre}"></span><h2 th:text="${p.nombre}"></h2><span class="detail-rule"></span>
+  <p th:text="${p.notas}"></p><span class="size-label">SELECCIONA TU TAMAÑO</span>
+  <form th:action="@{/carrito/agregar}" method="post"><input type="hidden" name="productoId" th:value="${p.id}"/>
+    <div class="detail-sizes native-detail-sizes"><label th:each="v,estado : ${p.presentaciones}">
+      <input type="radio" name="ml" th:value="${v.ml}" th:checked="${estado.first}" required/>
+      <b th:text="${v.ml}+' ml'"></b><strong th:text="'S/ '+${#numbers.formatDecimal(v.precioFinal,1,2,'POINT')}"></strong>
+      <small th:text="${v.stock > 0} ? ${v.stock}+' disponibles' : 'Agotado'"></small>
+    </label></div>
+    <label>Cantidad <input class="field" type="number" name="cantidad" value="1" min="1" max="99" required/></label>
+    <div class="detail-actions"><button class="btn outline" name="destino" value="carrito" th:disabled="${!p.conStock}">Agregar al carrito</button>
+    <button class="btn" name="destino" value="comprar" th:disabled="${!p.conStock}">Comprar ahora ↗</button></div>
+  </form><ul class="detail-perks"><li>Delivery gratis desde S/ 200</li><li>Envíos a todo el Perú</li><li>Entrega coordinada</li></ul>
+  <p class="hint">Recibes un decant de 3, 5 o 10 ml. El frasco original de la foto no está incluido.</p></div>
+</div></div></section>
+
+</main><div th:replace="~{fragments/layout :: pie}"></div></body></html>

@@ -1,32 +1,13 @@
 package com.cibertec.app.service;
 
-import com.cibertec.app.entity.*;
+import com.cibertec.app.entity.Producto;
 
-import org.springframework.web.multipart.MultipartFile;
 
-import java.util.*;
-
+// Integrante 2: perfumes. Firmas iniciales: completar parámetros según la guía.
 public interface ProductoService {
-    List<Producto> listarTodosProductos();
+	void guardar(Producto producto);
 
-    Producto buscarProductoById(Long id);
+	void actualizar(Long id, Producto producto);
 
-    Producto nuevoProducto();
-
-    Producto guardarProducto(Producto formulario, MultipartFile foto, List<MultipartFile> galeria);
-
-    Producto actualizarProducto(
-            Long id,
-            Producto formulario,
-            MultipartFile foto,
-            List<MultipartFile> galeria,
-            List<Long> eliminarImagenes);
-
-    List<ProductoImagen> listarGaleria(Long id);
-
-    void eliminarProductoById(Long id, Integer version);
-
-    void restaurarProductoById(Long id, Integer version);
-
-    void agotarProductoById(Long id, Integer version);
+	void retirar(Long id);
 }

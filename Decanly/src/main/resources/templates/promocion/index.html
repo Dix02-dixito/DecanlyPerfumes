@@ -22,11 +22,7 @@
               <p>Consulta los packs publicados y sus perfumes.</p>
             </div>
           </div>
-          <p class="notice">
-            El backend recibido implementa la consulta de packs. Crear, editar y
-            retirar packs desde el panel es el siguiente mantenimiento
-            pendiente.
-          </p>
+          <a class="btn" th:href="@{/promocion/new}">Nueva promoción +</a>
           <div class="admin-pack-grid">
             <article class="admin-pack-card" th:each="p : ${packs}">
               <div class="admin-pack-art">
@@ -45,7 +41,8 @@
                     th:each="detalle : ${p.detalles}"
                     th:text="${detalle.producto.nombre}+' · '+${detalle.cantidad}+' × '+${detalle.ml}+' ml'"
                   ></li>
-                </ul>
+                </ul><a class="btn light" th:href="@{/promocion/edit/{id}(id=${p.idPack})}">Editar</a>
+<form th:action="@{/promocion/delete/{id}(id=${p.idPack})}" method="post"><button class="text-link">Retirar</button></form>
               </div>
             </article>
           </div>

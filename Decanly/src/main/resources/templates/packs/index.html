@@ -22,24 +22,18 @@
       </section>
       <section class="section split pack-builder" style="padding-top: 15px">
         <div class="pack-catalog">
-          <input
+          <form th:action="@{/packs}" method="get"><input
             class="field"
-            id="search"
+            id="search" name="q" th:value="${q}"
             type="search"
             placeholder="Busca un perfume para tu pack…"
             aria-label="Buscar perfumes para el pack"
             value=""
-          />
+          /><button class="text-link">Buscar</button></form>
           <div class="toolbar">
-            <span id="result-count">50 fragancias para descubrir</span
-            ><select id="sort" aria-label="Ordenar perfumes">
-              <option value="featured" selected>Nuestra selección</option>
-              <option value="price-up">Menor precio</option>
-              <option value="price-down">Mayor precio</option>
-              <option value="name">Nombre A–Z</option>
-            </select>
+            <span id="result-count" th:text="${#lists.size(productos)}+' fragancias para descubrir'"></span>
           </div>
-          <div class="grid" id="product-grid"></div>
+          <div class="grid" id="product-grid"><th:block th:each="p : ${productos}"><article th:replace="~{fragments/tienda :: tarjeta(${p},'pack')}"></article></th:block></div>
         </div>
         <aside class="panel sticky" id="pack-summary" tabindex="-1">
           <div class="eyebrow">Hecho por ti</div>
@@ -62,19 +56,16 @@
           <div class="summary-row total">
             <strong>Total del pack</strong><strong>S/ 0.00</strong>
           </div>
-          <button class="btn" data-action="pack-cart" disabled>
+          <form th:action="@{/packs/carrito}" method="post"><button class="btn" type="submit">
             Añadir pack al carrito ↗
-          </button>
+          </button></form>
           <p class="hint">
             Los descuentos no se acumulan: aplicamos la mejor opción. Envío por
             coordinar.
           </p>
         </aside>
       </section>
-      <button type="button" class="pack-mobile-bar" data-action="pack-review">
-        <span><small>Tu pack · 0 decants</small><strong>S/ 0.00</strong></span
-        ><span>Ver selección</span>
-      </button>
+      <a href="#pack-summary" class="pack-mobile-bar"><span><small>Tu pack · 0 decants</small><strong>S/ 0.00</strong></span><span>Ver selección</span></a>
     </main>
     <div th:replace="~{fragments/layout :: pie}"></div>
   </body>

@@ -1,12 +1,7 @@
 package com.cibertec.app.repository;
-
-import com.cibertec.app.entity.*;
-
-import org.springframework.data.jpa.repository.*;
-
-import java.util.*;
-
-public interface PackRepository extends JpaRepository<Pack, Long> {
-    @EntityGraph(attributePaths = {"detalles", "detalles.producto"})
+import com.cibertec.app.entity.Pack;
+import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
+public interface PackRepository extends JpaRepository<Pack,Long> {
     List<Pack> findByActivoTrueOrderByIdPackAsc();
 }

@@ -1,9 +1,9 @@
 package com.cibertec.app.repository;
 
-import com.cibertec.app.entity.*;
+import com.cibertec.app.entity.Configuracion;
+import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import org.springframework.data.jpa.repository.*;
+public interface ConfiguracionRepository extends JpaRepository<Configuracion, Integer> {
 
-import java.util.*;
-
-public interface ConfiguracionRepository extends JpaRepository<Configuracion, Integer> {}
+}

@@ -18,7 +18,7 @@
         <p>Perfumes que quieres conocer. En decants de 3, 5 y 10 ml.</p>
       </section>
       <section class="section shop">
-        <aside class="filters">
+        <form class="filters" th:action="@{/catalogo}" method="get">
           <div class="filter-heading">
             <svg
               class="ui-icon"
@@ -35,57 +35,33 @@
           </div>
           <label for="search">BUSCAR PERFUME</label
           ><input
-            id="search"
+            id="search" name="q" th:value="${q}"
             class="field"
             placeholder="Nombre, marca o nota…"
             value=""
             type="search"
           />
           <label for="brand-filter">MARCA</label
-          ><select id="brand-filter" class="field">
+          ><select id="brand-filter" name="marca" class="field">
             <option value="">Todas las marcas</option>
-            <option>Afnan</option>
-            <option>Al Haramain</option>
-            <option>Armaf</option>
-            <option>Azzaro</option>
-            <option>Carolina Herrera</option>
-            <option>Chanel</option>
-            <option>Creed</option>
-            <option>Dior</option>
-            <option>Dolce &amp; Gabbana</option>
-            <option>Emporio Armani</option>
-            <option>French Avenue</option>
-            <option>Giorgio Armani</option>
-            <option>Jean Paul Gaultier</option>
-            <option>Lattafa</option>
-            <option>Prada</option>
-            <option>Rabanne</option>
-            <option>Rasasi</option>
-            <option>Valentino</option>
-            <option>Versace</option>
-            <option>Xerjoff</option>
-            <option>Yves Saint Laurent</option>
+            <option th:each="m : ${marcas}" th:value="${m.nombre}" th:text="${m.nombre}" th:selected="${m.nombre == marcaElegida}"></option>
           </select>
           <label for="category-filter">TU ESTILO</label
-          ><select class="field" id="category-filter">
+          ><select class="field" id="category-filter" name="estilo">
             <option value="">Todos los aromas</option>
-            <option>Verano</option>
-            <option>Invierno</option>
-            <option>Dulce</option>
-            <option>Amaderado</option>
-            <option>Limpio</option>
-            <option>Floral</option>
+            <option value="Verano" th:selected="${estilo == 'Verano'}">Verano</option>
+            <option value="Invierno" th:selected="${estilo == 'Invierno'}">Invierno</option>
+            <option value="Dulce" th:selected="${estilo == 'Dulce'}">Dulce</option>
+            <option value="Amaderado" th:selected="${estilo == 'Amaderado'}">Amaderado</option>
+            <option value="Limpio" th:selected="${estilo == 'Limpio'}">Limpio</option>
+            <option value="Floral" th:selected="${estilo == 'Floral'}">Floral</option>
           </select>
           <label>OCASIÓN</label>
           <div class="filter-buttons">
-            <button class="selected" data-action="occasion" data-value="">
-              Todas</button
-            ><button class="" data-action="occasion" data-value="Día">
-              Día</button
-            ><button class="" data-action="occasion" data-value="Noche">
-              Noche
-            </button>
-          </div>
+  <button name="ocasion" value="" th:classappend="${ocasion == ''} ? 'selected'">Todas</button>
+  <button name="ocasion" value="Día" th:classappend="${ocasion == 'Día'} ? 'selected'">Día</button>
+  <button name="ocasion" value="Noche" th:classappend="${ocasion == 'Noche'} ? 'selected'">Noche</button>
+</div><button type="submit" class="text-link">Aplicar filtros</button>
           <div class="format-note">
             <svg
               class="ui-icon"
@@ -100,29 +76,22 @@
               para descubrir<br />10 ml para llevar contigo
             </p>
           </div>
-          <button class="text-link clear" data-action="clear-filters">
-            Limpiar filtros
-            <svg
-              class="ui-icon"
-              viewbox="0 0 24 24"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path d="m6 6 12 12M6 18 18 6"></path>
-            </svg>
-          </button>
-        </aside>
+          <a class="text-link clear" th:href="@{/catalogo}">Limpiar filtros ×</a>
+        </form>
         <div>
           <div class="toolbar">
-            <span id="result-count">50 fragancias para descubrir</span
-            ><select id="sort" aria-label="Ordenar perfumes">
-              <option value="featured" selected>Nuestra selección</option>
-              <option value="price-up">Menor precio</option>
-              <option value="price-down">Mayor precio</option>
-              <option value="name">Nombre A–Z</option>
-            </select>
+            <span id="result-count" th:text="${#lists.size(productos)}+' fragancias para descubrir'"></span><form th:action="@{/catalogo}" method="get" class="native-sort">
+<input type="hidden" name="q" th:value="${q}"/><input type="hidden" name="marca" th:value="${marcaElegida}"/>
+<input type="hidden" name="ocasion" th:value="${ocasion}"/><input type="hidden" name="estilo" th:value="${estilo}"/>
+<select name="orden" id="sort" aria-label="Ordenar perfumes">
+              <option value="featured" th:selected="${orden == 'featured'}" selected>Nuestra selección</option>
+              <option value="price-up" th:selected="${orden == 'price-up'}">Menor precio</option>
+              <option value="price-down" th:selected="${orden == 'price-down'}">Mayor precio</option>
+              <option value="name" th:selected="${orden == 'name'}">Nombre A–Z</option>
+            </select><button class="text-link">Ordenar</button></form>
           </div>
-          <div class="grid" id="product-grid"></div>
+          <div class="grid" id="product-grid"><th:block th:each="p : ${productos}"><article th:replace="~{fragments/tienda :: tarjeta(${p},'carrito')}"></article></th:block></div>
+<div class="empty" th:if="${#lists.isEmpty(productos)}"><h2>No encontramos ese aroma.</h2><a class="btn light" th:href="@{/catalogo}">Ver todos los perfumes</a></div>
         </div>
       </section>
     </main>

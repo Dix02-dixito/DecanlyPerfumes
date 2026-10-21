@@ -1,8 +1,16 @@
 package com.cibertec.app.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Lob;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Setter
@@ -10,20 +18,17 @@ import lombok.*;
 @Entity
 @Table(name = "imagen")
 public class Imagen {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "nombre_archivo", length = 150, nullable = false)
-    private String nombreArchivo;
-
-    @Column(name = "tipo_mime", length = 40, nullable = false)
-    private String tipoMime;
-
-    @Lob
-    @Column(nullable = false, columnDefinition = "LONGBLOB")
-    private byte[] contenido;
-
-    @Column(nullable = false, columnDefinition = "CHAR(64)")
-    private String sha256;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id_imagen")
+	private Long id;
+	@Column(name = "nombre_archivo_imagen", length = 150)
+	private String nombreArchivo;
+	@Column(name = "tipo_mime_imagen", length = 40)
+	private String tipoMime;
+	@Lob
+	@Column(name = "contenido_imagen", columnDefinition = "LONGBLOB")
+	private byte[] contenido;
+	@Column(name = "sha256_imagen", columnDefinition = "CHAR(64)", length = 64)
+	private String sha256;
 }

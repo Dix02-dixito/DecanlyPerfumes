@@ -1,0 +1,11 @@
+<!doctype html><html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Pedidos')}"><title>Pedidos</title></head><body>
+<div th:replace="~{fragments/layout :: cabecera}"></div><main id="app" tabindex="-1">
+<section class="admin-shell"><aside th:replace="~{fragments/admin :: sidebar}"></aside><div class="admin-main">
+
+<div class="admin-heading"><div><span class="eyebrow">Ventas y entregas</span><h1>Pedidos.</h1></div></div>
+<form class="admin-toolbar" th:action="@{/pedidos}" method="get"><input class="field" name="q" placeholder="Referencia o cliente"/><select class="field" name="estado"><option value="">Todos los estados</option><option>PENDIENTE</option><option>CONFIRMADO</option><option>ENTREGADO</option><option>CANCELADO</option></select><button class="btn">Consultar</button></form>
+<div class="table-wrap"><table class="admin-table"><thead><tr><th>Referencia</th><th>Cliente</th><th>Estado</th><th>Total</th><th>Acciones</th></tr></thead><tbody><tr><td colspan="5">No hay pedidos disponibles para consultar.</td></tr></tbody></table></div>
+
+</div></section>
+</main><div th:replace="~{fragments/layout :: pie}"></div></body></html>

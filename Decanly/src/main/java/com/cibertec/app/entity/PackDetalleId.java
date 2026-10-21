@@ -1,13 +1,14 @@
 package com.cibertec.app.entity;
 
-import lombok.*;
+import lombok.NoArgsConstructor;
+import lombok.Data;
+import lombok.AllArgsConstructor;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
-@EqualsAndHashCode
+@AllArgsConstructor
 public class PackDetalleId implements java.io.Serializable {
-    private static final long serialVersionUID = 1L;
-    private Long packId;
-    private Long productoId;
+	private static final long serialVersionUID = 1L;
+	private Long packId;
+	private Long productoId;
 }

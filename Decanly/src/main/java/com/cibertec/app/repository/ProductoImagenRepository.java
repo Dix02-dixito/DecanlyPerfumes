@@ -1,13 +1,11 @@
 package com.cibertec.app.repository;
 
-import com.cibertec.app.entity.*;
+import com.cibertec.app.entity.ProductoImagen;
+import com.cibertec.app.entity.ProductoImagenId;
 
-import org.springframework.data.jpa.repository.*;
-
-import java.util.*;
+import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ProductoImagenRepository extends JpaRepository<ProductoImagen, ProductoImagenId> {
-    List<ProductoImagen> findByProductoIdOrderByOrdenAsc(Long id);
-
-    void deleteByProductoId(Long id);
+	List<ProductoImagen> findByProductoIdOrderByOrdenAsc(Long productoId);
 }

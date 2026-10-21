@@ -1,35 +1,19 @@
-<!doctype html>
-<html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
-  <head th:replace="~{fragments/layout :: head('Carrito')}">
-    <title>Carrito · Decanly</title>
-  </head>
-  <body data-route="carrito" data-page="carrito/index">
-    <div th:replace="~{fragments/layout :: cabecera}"></div>
-    <div
-      id="connection-status"
-      class="connection-status"
-      role="status"
-      hidden=""
-    ></div>
-    <main id="app" tabindex="-1">
-      <section class="page-head">
-        <div class="eyebrow">Tu selección</div>
-        <h1>Pequeños frascos.<br /><em>Grandes elecciones.</em></h1>
-        <p>
-          Revisa tu selección. El vendedor confirmará disponibilidad, envío y
-          forma de pago.
-        </p>
-      </section>
-      <section class="section" style="padding-top: 15px">
-        <div class="empty">
-          <h2>Tu carrito aún no tiene un aroma.</h2>
-          <p>Encuentra ese perfume que quieres probar.</p>
-          <a class="btn" href="/catalogo" th:href="@{/catalogo}"
-            >Explorar perfumes ↗</a
-          >
-        </div>
-      </section>
-    </main>
-    <div th:replace="~{fragments/layout :: pie}"></div>
-  </body>
-</html>
+<!doctype html><html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Carrito')}"><title>Carrito</title></head><body>
+<div th:replace="~{fragments/layout :: cabecera}"></div><main id="app" tabindex="-1">
+
+
+<section class="page-head"><div class="eyebrow">Tu selección</div><h1>Pequeños frascos.<br/><em>Grandes elecciones.</em></h1><p>Revisa tu selección. El vendedor confirmará disponibilidad, envío y forma de pago.</p></section>
+<section class="section" style="padding-top:15px"><div class="split"><div>
+  <div class="empty"><h2>Tu carrito aún no tiene un aroma.</h2><p>Encuentra ese perfume que quieres probar.</p><a class="btn" th:href="@{/catalogo}">Explorar perfumes ↗</a></div>
+  <form th:action="@{/carrito/vaciar}" method="post"><button class="text-link">Vaciar selección</button></form>
+</div><aside class="panel"><h2>Tu pedido</h2><div class="summary-row"><span>Subtotal</span><span>S/ 0.00</span></div><div class="summary-row total"><strong>Total</strong><strong>S/ 0.00</strong></div>
+  <form class="checkout-form" th:action="@{/pedido/registrar}" method="post">
+    <h3>Datos de tu pedido</h3><label for="nombre">Nombre completo</label><input class="field" id="nombre" name="nombreCliente" maxlength="120" minlength="2" autocomplete="name" required/>
+    <label for="telefono">WhatsApp</label><input class="field" id="telefono" name="telefono" type="tel" maxlength="15" autocomplete="tel" required/>
+    <label for="direccion">Dirección</label><input class="field" id="direccion" name="direccion" minlength="5" maxlength="250" autocomplete="street-address" required/>
+    <label class="check-label"><input type="checkbox" name="aceptaTerminos" value="true" required/><span>Acepto los <a th:href="@{/terminos}">términos y condiciones</a>.</span></label>
+    <button class="btn">Confirmar pedido ↗</button>
+  </form></aside></div></section>
+
+</main><div th:replace="~{fragments/layout :: pie}"></div></body></html>
