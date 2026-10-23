@@ -1,12 +1,18 @@
 package com.cibertec.app.service;
 
-import com.cibertec.app.entity.*;
+import java.math.BigDecimal;
 
-// Integrante 3: pedidos. Firmas iniciales: completar parámetros según la guía.
 public interface PedidoService {
-	void registrar();
 
-	void cancelar(Long id);
+    void registrar(
+            String nombre,
+            String telefono,
+            String direccion,
+            BigDecimal total);
 
-	void cambiarEstado(Long id, String estado);
+    void cancelar(Long id);
+
+    void cambiarEstado(
+            Long id,
+            String estado);
 }

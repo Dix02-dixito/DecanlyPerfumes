@@ -1,7 +1,21 @@
-<!doctype html><html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Perfume')}"><title>Perfume</title></head><body>
-<div th:replace="~{fragments/layout :: cabecera}"></div><main id="app" tabindex="-1">
-<section class="admin-shell"><aside th:replace="~{fragments/admin :: sidebar}"></aside><div class="admin-main">
-<div th:replace="~{producto/formulario :: formulario}"></div>
-</div></section>
-</main><div th:replace="~{fragments/layout :: pie}"></div></body></html>
+<!doctype html>
+<html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Perfume')}">
+	<title>Perfume</title>
+</head>
+
+<body>
+	<div th:replace="~{fragments/layout :: cabecera}"></div>
+	<main id="app" tabindex="-1">
+		<section class="admin-shell">
+			<aside th:replace="~{fragments/admin :: sidebar}"></aside>
+			<div class="admin-main">
+				<div th:replace="~{producto/formulario :: formulario}"></div>
+			</div>
+		</section>
+	</main>
+	<div th:replace="~{fragments/layout :: pie}"></div>
+</body>
+
+</html>

@@ -1,7 +1,8 @@
 package com.cibertec.app.controller;
 
 import com.cibertec.app.entity.Producto;
-
+import jakarta.servlet.http.HttpSession;
+import com.cibertec.app.entity.CarritoItem;
 import com.cibertec.app.service.CatalogoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -10,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 import java.util.List;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 
 @Controller
 public class TiendaController {
@@ -17,12 +20,37 @@ public class TiendaController {
 	private CatalogoService catalogo;
 
 	@ModelAttribute
-	public void comunes(Model m) {
-		m.addAttribute("marcas", catalogo.marcas());
-		m.addAttribute("descuentoPack", catalogo.descuentoPack());
-		m.addAttribute("tamanos", new int[] { 3, 5, 10 });
-		m.addAttribute("carrito", List.of()); // TODO integrante 3: leer la sesión.
-		m.addAttribute("cantidadCarrito", 0);
+	public void comunes(
+	        Model m,
+	        HttpSession session) {
+
+	    List<?> carrito =
+	            (List<?>) session.getAttribute(
+	                    "carrito");
+
+	    if (carrito == null) {
+	        carrito = List.of();
+	    }
+
+	    m.addAttribute(
+	            "carrito",
+	            carrito);
+
+	    m.addAttribute(
+	            "cantidadCarrito",
+	            carrito.size());
+
+	    m.addAttribute(
+	            "marcas",
+	            catalogo.marcas());
+
+	    m.addAttribute(
+	            "descuentoPack",
+	            catalogo.descuentoPack());
+
+	    m.addAttribute(
+	            "tamanos",
+	            new int[]{3,5,10});
 	}
 
 	@GetMapping("/")
@@ -73,10 +101,53 @@ public class TiendaController {
 		return "cuenta/index";
 	}
 
-	@GetMapping({ "/carrito", "/carrito/vacio" })
-	public String carrito() {
-		return "carrito/index";
+	@GetMapping("/carrito")
+	public String carrito(
+	        HttpSession session,
+	        Model model) {
+
+	    List<CarritoItem> carrito =
+	            (List<CarritoItem>) session.getAttribute("carrito");
+
+	    if (carrito == null) {
+	        carrito = new ArrayList<>();
+	    }
+
+	    BigDecimal subtotal = BigDecimal.ZERO;
+
+	    for (CarritoItem item : carrito) {
+	        subtotal = subtotal.add(item.getSubtotal());
+	    }
+
+	    BigDecimal envio;
+	    BigDecimal faltante;
+
+	    if (subtotal.compareTo(new BigDecimal("200")) >= 0) {
+
+	        envio = BigDecimal.ZERO;
+	        faltante = BigDecimal.ZERO;
+
+	    } else {
+
+	        envio = new BigDecimal("15");
+
+	        faltante =
+	                new BigDecimal("200")
+	                        .subtract(subtotal);
+	    }
+
+	    BigDecimal total =
+	            subtotal.add(envio);
+
+	    model.addAttribute("carrito", carrito);
+	    model.addAttribute("subtotal", subtotal);
+	    model.addAttribute("envio", envio);
+	    model.addAttribute("total", total);
+	    model.addAttribute("faltante", faltante);
+
+	    return "carrito/index";
 	}
+
 
 	@GetMapping("/contacto")
 	public String contacto() {

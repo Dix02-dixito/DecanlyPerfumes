@@ -1,13 +1,35 @@
-<!doctype html><html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Usuarios')}"><title>Usuarios</title></head><body>
-<div th:replace="~{fragments/layout :: cabecera}"></div><main id="app" tabindex="-1">
-<section class="admin-shell"><aside th:replace="~{fragments/admin :: sidebar}"></aside><div class="admin-main">
+<!doctype html>
+<html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
 
-<section class="panel editor-page"><h2>Nueva cuenta</h2><form class="form-grid" th:action="@{/usuarios}" method="post">
-<label class="wide">Nombre<input class="field" name="nombre" maxlength="100" required/></label>
-<label>Correo<input class="field" name="correo" type="email" maxlength="150" required/></label>
-<label>Contraseña<input class="field" name="clave" type="password" autocomplete="new-password" required/></label>
-<label>Rol<select class="field" name="rol"><option>ADMIN</option><option>VENDEDOR</option></select></label>
-<button class="btn">Guardar cuenta</button></form></section>
-</div></section>
-</main><div th:replace="~{fragments/layout :: pie}"></div></body></html>
+<head th:replace="~{fragments/layout :: head('Usuarios')}">
+	<title>Usuarios</title>
+</head>
+
+<body>
+	<div th:replace="~{fragments/layout :: cabecera}"></div>
+	<main id="app" tabindex="-1">
+		<section class="admin-shell">
+			<aside th:replace="~{fragments/admin :: sidebar}"></aside>
+			<div class="admin-main">
+
+				<section class="panel editor-page">
+					<h2>Nueva cuenta</h2>
+					<form class="form-grid" th:action="@{/usuarios}" method="post">
+						<label class="wide">Nombre<input class="field" name="nombre" maxlength="100" required /></label>
+						<label>Correo<input class="field" name="correo" type="email" maxlength="150" required /></label>
+						<label>Contraseña<input class="field" name="clave" type="password" autocomplete="new-password"
+								required /></label>
+						<label>Rol<select class="field" name="rol">
+								<option>ADMIN</option>
+								<option>VENDEDOR</option>
+							</select></label>
+						<button class="btn">Guardar cuenta</button>
+					</form>
+				</section>
+			</div>
+		</section>
+	</main>
+	<div th:replace="~{fragments/layout :: pie}"></div>
+</body>
+
+</html>

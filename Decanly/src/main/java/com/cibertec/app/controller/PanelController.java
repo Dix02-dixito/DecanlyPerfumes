@@ -2,6 +2,7 @@ package com.cibertec.app.controller;
 
 import com.cibertec.app.entity.Producto;
 import com.cibertec.app.entity.Pack;
+import com.cibertec.app.repository.PedidoRepository;
 
 import com.cibertec.app.service.CatalogoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,9 @@ import java.util.List;
 public class PanelController {
 	@Autowired
 	private CatalogoService catalogo;
+	
+	@Autowired
+	private PedidoRepository pedidoRepository;
 
 	@GetMapping("/producto")
 	public String productos(@RequestParam(defaultValue = "") String q, Model m) {
@@ -82,8 +86,13 @@ public class PanelController {
 	}
 
 	@GetMapping("/pedidos")
-	public String pedidos() {
-		return "pedido/index";
+	public String pedidos(Model model) {
+
+	    model.addAttribute(
+	            "pedidos",
+	            pedidoRepository.findAll());
+
+	    return "pedido/index";
 	}
 
 	@GetMapping("/usuarios")

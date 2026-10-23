@@ -1,19 +1,193 @@
-<!doctype html><html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Carrito')}"><title>Carrito</title></head><body>
-<div th:replace="~{fragments/layout :: cabecera}"></div><main id="app" tabindex="-1">
+<!doctype html>
+<html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Carrito')}">
+    <title>Carrito</title>
+</head>
+<body>
+    <!-- Cabecera -->
+    <div th:replace="~{fragments/layout :: cabecera}"></div>
 
+    <!-- Contenido Principal -->
+    <main id="app" tabindex="-1">
+        <!-- Encabezado de la página -->
+        <section class="page-head">
+            <div class="eyebrow">Tu selección</div>
+            <h1>Pequeños frascos.<br/><em>Grandes elecciones.</em></h1>
+            <p>Revisa tu selección. El vendedor confirmará disponibilidad, envío y forma de pago.</p>
+        </section>
 
-<section class="page-head"><div class="eyebrow">Tu selección</div><h1>Pequeños frascos.<br/><em>Grandes elecciones.</em></h1><p>Revisa tu selección. El vendedor confirmará disponibilidad, envío y forma de pago.</p></section>
-<section class="section" style="padding-top:15px"><div class="split"><div>
-  <div class="empty"><h2>Tu carrito aún no tiene un aroma.</h2><p>Encuentra ese perfume que quieres probar.</p><a class="btn" th:href="@{/catalogo}">Explorar perfumes ↗</a></div>
-  <form th:action="@{/carrito/vaciar}" method="post"><button class="text-link">Vaciar selección</button></form>
-</div><aside class="panel"><h2>Tu pedido</h2><div class="summary-row"><span>Subtotal</span><span>S/ 0.00</span></div><div class="summary-row total"><strong>Total</strong><strong>S/ 0.00</strong></div>
-  <form class="checkout-form" th:action="@{/pedido/registrar}" method="post">
-    <h3>Datos de tu pedido</h3><label for="nombre">Nombre completo</label><input class="field" id="nombre" name="nombreCliente" maxlength="120" minlength="2" autocomplete="name" required/>
-    <label for="telefono">WhatsApp</label><input class="field" id="telefono" name="telefono" type="tel" maxlength="15" autocomplete="tel" required/>
-    <label for="direccion">Dirección</label><input class="field" id="direccion" name="direccion" minlength="5" maxlength="250" autocomplete="street-address" required/>
-    <label class="check-label"><input type="checkbox" name="aceptaTerminos" value="true" required/><span>Acepto los <a th:href="@{/terminos}">términos y condiciones</a>.</span></label>
-    <button class="btn">Confirmar pedido ↗</button>
-  </form></aside></div></section>
+        <!-- Sección del Carrito -->
+        <section class="section" style="padding-top: 15px;">
+            <div class="split">
+                
+                <!-- Columna Izquierda: Productos / Carrito Vacío -->
+                <div>
+					<div th:if="${#lists.isEmpty(carrito)}" class="empty">
 
-</main><div th:replace="~{fragments/layout :: pie}"></div></body></html>
+					    <h2>Tu carrito aún no tiene un aroma.</h2>
+
+					    <p>
+					        Encuentra ese perfume que quieres probar.
+					    </p>
+
+					    <a class="btn"
+					       th:href="@{/catalogo}">
+					        Explorar perfumes ↗
+					    </a>
+
+					</div>
+
+					<div th:unless="${#lists.isEmpty(carrito)}">
+
+					    <div th:each="item : ${carrito}"
+					         class="panel"
+					         style="margin-bottom:15px;">
+							 
+							 <img
+							 th:src="@{/imagenes/{id}(id=${item.imagenId})}"
+							 alt="Perfume"
+							 style="
+							     width:120px;
+							     height:120px;
+							     object-fit:cover;
+							     border-radius:10px;
+							     margin-bottom:10px;">
+
+					        <h3 th:text="${item.nombre}">
+					        </h3>
+
+					        <p>
+					            Tamaño:
+					            <strong th:text="${item.ml} + ' ml'">
+					            </strong>
+					        </p>
+
+					        <p>
+					            Cantidad:
+					            <strong th:text="${item.cantidad}">
+					            </strong>
+					        </p>
+
+					        <p>
+					            Precio:
+					            S/
+					            <strong th:text="${item.precio}">
+					            </strong>
+					        </p>
+
+					        <p>
+					            Subtotal:
+					            S/
+					            <strong th:text="${item.subtotal}">
+					            </strong>
+					        </p>
+
+					    </div>
+
+					</div>
+                    <form th:action="@{/carrito/vaciar}" method="post">
+                        <button class="text-link">Vaciar selección</button>
+                    </form>
+                </div>
+
+                <!-- Columna Derecha: Resumen y Formulario de Pedido -->
+                <aside class="panel">
+					<h2>Tu pedido</h2>
+
+					<div th:each="item : ${carrito}"
+					     class="summary-row">
+
+					    <span>
+					        <span th:text="${item.nombre}"></span>
+					        (<span th:text="${item.ml}"></span> ml)
+					        x
+					        <span th:text="${item.cantidad}"></span>
+					    </span>
+
+					    <span th:text="'S/ ' + ${item.subtotal}">
+					    </span>
+
+					</div>
+
+					<hr>
+
+					<div class="summary-row">
+
+					    <span>Subtotal</span>
+
+					    <span th:text="'S/ ' + ${subtotal}">
+					    </span>
+
+					</div>
+
+					<div class="summary-row">
+
+					    <span>Envío</span>
+
+					    <span th:if="${envio == 0}">
+					        GRATIS
+					    </span>
+
+					    <span th:unless="${envio == 0}"
+					          th:text="'S/ ' + ${envio}">
+					    </span>
+
+					</div>
+
+					<p class="hint"
+					   th:if="${envio != 0}">
+
+					    Te faltan
+
+					    <strong th:text="${faltante}">
+					    </strong>
+
+					    soles para obtener envío gratis.
+
+					</p>
+
+					<p class="hint"
+					   th:if="${envio == 0}">
+
+					    🎉 Tu pedido tiene envío gratis.
+
+					</p>
+
+					<div class="summary-row total">
+
+					    <strong>Total</strong>
+
+					    <strong th:text="'S/ ' + ${total}">
+					    </strong>
+
+					</div>
+
+                    <form class="checkout-form" th:action="@{/pedido/registrar}" method="post">
+                        <h3>Datos de tu pedido</h3>
+                        
+                        <label for="nombre">Nombre completo</label>
+                        <input class="field" id="nombre" name="nombreCliente" maxlength="120" minlength="2" autocomplete="name" required/>
+                        
+                        <label for="telefono">WhatsApp</label>
+                        <input class="field" id="telefono" name="telefono" type="tel" maxlength="15" autocomplete="tel" required/>
+                        
+                        <label for="direccion">Dirección</label>
+                        <input class="field" id="direccion" name="direccion" minlength="5" maxlength="250" autocomplete="street-address" required/>
+                        
+                        <label class="check-label">
+                            <input type="checkbox" name="aceptaTerminos" value="true" required/>
+                            <span>Acepto los <a th:href="@{/terminos}">términos y condiciones</a>.</span>
+                        </label>
+                        
+                        <button class="btn">Confirmar pedido ↗</button>
+                    </form>
+                </aside>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Pie de página -->
+    <div th:replace="~{fragments/layout :: pie}"></div>
+</body>
+</html>
