@@ -16,8 +16,6 @@ public class PendientesController {
 
 			"/packs/agregar", "/packs/quitar", "/packs/carrito", "/promociones/agregar",
 
-			"/pedido/{id}/estado",
-
 			"/login", "/logout", "/usuarios", "/configuracion" })
 	public String pendiente(HttpServletResponse response) {
 		response.setStatus(501);

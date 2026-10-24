@@ -128,6 +128,12 @@ public class SeguridadConfig {
 
                 // Las demás operaciones de la API requieren sesión.
                 .requestMatchers("/api/**").authenticated()
+                .requestMatchers(
+                        "/pedidos",
+                        "/pedidos/**",
+                        "/pedido/*/cancelar",
+                        "/pedido/*/estado"
+                ).hasAnyRole("ADMIN", "VENDEDOR")
 
                 .anyRequest().permitAll()
             )

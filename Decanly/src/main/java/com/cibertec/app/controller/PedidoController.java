@@ -1,6 +1,7 @@
 package com.cibertec.app.controller;
 import java.util.ArrayList;
 
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -9,6 +10,10 @@ import jakarta.servlet.http.HttpSession;
 import com.cibertec.app.entity.CarritoItem;
 import java.math.BigDecimal;
 import java.util.List;
+
+import org.springframework.dao.ConcurrencyFailureException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.util.WebUtils;
 
 
 
@@ -28,41 +33,95 @@ public class PedidoController {
 
     @PostMapping("/pedido/registrar")
     public String registrar(
-            @RequestParam String nombreCliente,
-            @RequestParam String telefono,
-            @RequestParam String direccion,
-            HttpSession session) {
+            @RequestParam("nombreCliente") String nombreCliente,
+            @RequestParam("telefono") String telefono,
+            @RequestParam("direccion") String direccion,
+            @RequestParam(name = "aceptaTerminos", defaultValue = "false")
+            boolean aceptaTerminos,
+            HttpSession session,
+            RedirectAttributes avisos) {
 
-        List<CarritoItem> carrito =
-                (List<CarritoItem>) session.getAttribute("carrito");
+        synchronized (WebUtils.getSessionMutex(session)) {
 
-        BigDecimal total = BigDecimal.ZERO;
+            Object guardado = session.getAttribute("carrito");
 
-        if (carrito != null) {
+            List<CarritoItem> carrito = guardado instanceof List<?> lista
+                    ? lista.stream().map(CarritoItem.class::cast).toList()
+                    : List.of();
 
-            for (CarritoItem item : carrito) {
-                total = total.add(item.getSubtotal());
-            }
+            try {
+                Long id = pedidoService.registrar(
+                        nombreCliente, telefono, direccion,
+                        aceptaTerminos, carrito);
 
-            if (total.compareTo(new BigDecimal("200")) < 0) {
-                total = total.add(new BigDecimal("15"));
+                session.removeAttribute("carrito");
+
+                avisos.addFlashAttribute(
+                        "exito", "Pedido #" + id + " registrado correctamente.");
+
+            } catch (IllegalArgumentException ex) {
+
+                avisos.addFlashAttribute("error", ex.getMessage());
+
+            } catch (ConcurrencyFailureException ex) {
+
+                avisos.addFlashAttribute(
+                        "error",
+                        "Las existencias cambiaron durante la compra. "
+                        + "Revisa el carrito e inténtalo nuevamente.");
             }
         }
 
-        pedidoService.registrar(
-                nombreCliente,
-                telefono,
-                direccion,
-                total);
-
-        return "redirect:/pedidos";
+        return "redirect:/carrito";
     }
     
     @PostMapping("/pedido/{id}/cancelar")
     public String cancelar(
-            @PathVariable Long id) {
+            @PathVariable("id") Long id,
+            RedirectAttributes avisos) {
 
-        pedidoService.cancelar(id);
+        try {
+            pedidoService.cancelar(id);
+
+            avisos.addFlashAttribute(
+                    "exito", "El pedido está cancelado.");
+
+        } catch (IllegalArgumentException ex) {
+
+            avisos.addFlashAttribute("error", ex.getMessage());
+
+        } catch (ConcurrencyFailureException ex) {
+
+            avisos.addFlashAttribute(
+                    "error",
+                    "El pedido está siendo modificado. Inténtalo nuevamente.");
+        }
+
+        return "redirect:/pedidos";
+    }
+    
+    @PostMapping("/pedido/{id}/estado")
+    public String cambiarEstado(
+            @PathVariable("id") Long id,
+            @RequestParam("estado") String estado,
+            RedirectAttributes avisos) {
+
+        try {
+            pedidoService.cambiarEstado(id, estado);
+
+            avisos.addFlashAttribute(
+                    "exito", "Estado del pedido actualizado correctamente.");
+
+        } catch (IllegalArgumentException ex) {
+
+            avisos.addFlashAttribute("error", ex.getMessage());
+
+        } catch (ConcurrencyFailureException ex) {
+
+            avisos.addFlashAttribute(
+                    "error",
+                    "El pedido está siendo modificado. Recarga e inténtalo nuevamente.");
+        }
 
         return "redirect:/pedidos";
     }

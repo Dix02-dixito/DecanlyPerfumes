@@ -4,11 +4,25 @@
     <title>Carrito</title>
 </head>
 <body>
+	
     <!-- Cabecera -->
     <div th:replace="~{fragments/layout :: cabecera}"></div>
+	
 
     <!-- Contenido Principal -->
     <main id="app" tabindex="-1">
+		<main id="app" tabindex="-1">
+
+		<p class="notice" role="status"
+		   th:if="${exito != null}" th:text="${exito}">
+		</p>
+
+		<p class="notice" role="alert"
+		   th:if="${error != null}" th:text="${error}">
+		</p>
+
+		<section class="page-head">
+		    <!-- Tu encabezado actual continúa aquí -->
         <!-- Encabezado de la página -->
         <section class="page-head">
             <div class="eyebrow">Tu selección</div>

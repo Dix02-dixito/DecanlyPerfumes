@@ -75,6 +75,7 @@ public class CarritoServiceImpl implements CarritoService {
                     .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
 
             CarritoItem item = new CarritoItem();
+            item.setPackId(pack.getIdPack());
             item.setProductoId(producto.getId());
             item.setNombre(producto.getNombre());
             item.setImagenId(producto.getImagen().getId());

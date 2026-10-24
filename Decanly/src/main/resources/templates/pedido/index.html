@@ -1,20 +1,18 @@
 <!doctype html>
 <html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
+
 <head th:replace="~{fragments/layout :: head('Pedidos')}">
     <title>Pedidos</title>
 </head>
+
 <body>
-    <!-- Cabecera -->
     <div th:replace="~{fragments/layout :: cabecera}"></div>
 
-    <!-- Contenido Principal -->
     <main id="app" tabindex="-1">
         <section class="admin-shell">
-            <!-- Menú lateral de administración -->
             <aside th:replace="~{fragments/admin :: sidebar}"></aside>
 
             <div class="admin-main">
-                <!-- Encabezado de la sección -->
                 <div class="admin-heading">
                     <div>
                         <span class="eyebrow">Ventas y entregas</span>
@@ -22,10 +20,27 @@
                     </div>
                 </div>
 
-                <!-- Barra de búsqueda y filtros -->
-                <form class="admin-toolbar" th:action="@{/pedidos}" method="get">
-                    <input class="field" name="q" placeholder="Referencia o cliente" />
-                    
+                <p class="notice"
+                   role="status"
+                   th:if="${exito != null}"
+                   th:text="${exito}">
+                </p>
+
+                <p class="notice"
+                   role="alert"
+                   th:if="${error != null}"
+                   th:text="${error}">
+                </p>
+
+                <!-- Búsqueda y filtros -->
+                <form class="admin-toolbar"
+                      th:action="@{/pedidos}"
+                      method="get">
+
+                    <input class="field"
+                           name="q"
+                           placeholder="Referencia o cliente" />
+
                     <select class="field" name="estado">
                         <option value="">Todos los estados</option>
                         <option>PENDIENTE</option>
@@ -33,11 +48,13 @@
                         <option>ENTREGADO</option>
                         <option>CANCELADO</option>
                     </select>
-                    
-                    <button class="btn">Consultar</button>
+
+                    <button class="btn" type="submit">
+                        Consultar
+                    </button>
                 </form>
 
-                <!-- Tabla de resultados -->
+                <!-- Tabla de pedidos -->
                 <div class="table-wrap">
                     <table class="admin-table">
                         <thead>
@@ -49,57 +66,62 @@
                                 <th>Acciones</th>
                             </tr>
                         </thead>
-						<tbody>
 
-						<tr th:each="p : ${pedidos}">
+                        <tbody>
+                            <tr th:each="p : ${pedidos}">
+                                <td th:text="${p.id}"></td>
 
-						    <td th:text="${p.id}">
-						    </td>
+                                <td th:text="${p.nombreCliente}"></td>
 
-						    <td th:text="${p.nombreCliente}">
-						    </td>
+                                <td th:text="${p.estadoPedido}"></td>
 
-						    <td th:text="${p.estadoPedido}">
-						    </td>
+                                <td th:text="${p.totalPedido}"></td>
 
-						    <td th:text="${p.totalPedido}">
-						    </td>
+                                <td>
+                                    <div class="native-actions"
+                                         th:if="${p.estadoPedido == 'PENDIENTE'
+                                                  or p.estadoPedido == 'CONFIRMADO'}">
 
-						    <td>
+                                        <form th:action="@{/pedido/{id}/estado(id=${p.id})}"
+                                              method="post">
 
-						        <form th:action="@{/pedido/{id}/cancelar(id=${p.id})}"
-						              method="post">
+                                            <input type="hidden"
+                                                   name="estado"
+                                                   th:value="${p.estadoPedido == 'PENDIENTE'}
+                                                             ? 'CONFIRMADO' : 'ENTREGADO'" />
 
-						            <button class="btn light"
-						                    type="submit">
+                                            <button class="btn light"
+                                                    type="submit"
+                                                    th:text="${p.estadoPedido == 'PENDIENTE'}
+                                                             ? 'Confirmar' : 'Entregar'">
+                                            </button>
+                                        </form>
 
-						                Cancelar
+                                        <form th:action="@{/pedido/{id}/cancelar(id=${p.id})}"
+                                              method="post">
 
-						            </button>
+                                            <button class="text-link"
+                                                    type="submit">
+                                                Cancelar
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
 
-						        </form>
-
-						    </td>
-
-						</tr>
-
-						<tr th:if="${#lists.isEmpty(pedidos)}">
-
-						    <td colspan="5">
-						        No hay pedidos registrados.
-						    </td>
-
-						</tr>
-
-						</tbody>
+                            <tr th:if="${#lists.isEmpty(pedidos)}">
+                                <td colspan="5">
+                                    No hay pedidos registrados.
+                                </td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
-
             </div>
         </section>
     </main>
 
-    <!-- Pie de página -->
     <div th:replace="~{fragments/layout :: pie}"></div>
 </body>
+
 </html>
