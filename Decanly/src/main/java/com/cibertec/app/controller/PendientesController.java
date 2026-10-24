@@ -9,11 +9,18 @@ import jakarta.servlet.http.HttpServletResponse;
 // 501 hace explícito que NO se guardó ni se autenticó nada.
 @Controller
 public class PendientesController {
-	@PostMapping({ "/producto", "/producto/{id}", "/producto/delete/{id}", "/producto/restore/{id}",
-			"/producto/agotado/{id}", "/promocion", "/promocion/{id}", "/promocion/delete/{id}", "/carrito/agregar",
-			"/carrito/quitar", "/carrito/cantidad", "/carrito/vaciar", "/packs/agregar", "/packs/quitar",
-			"/packs/carrito", "/promociones/agregar", "/pedido/registrar", "/pedido/{id}/estado",
-			"/pedido/{id}/cancelar", "/login", "/logout", "/usuarios", "/configuracion" })
+	@PostMapping({ "/producto",
+			"/producto/agotado/{id}",
+
+			"/promocion", "/promocion/{id}", "/promocion/delete/{id}",
+
+			"/carrito/quitar", "/carrito/cantidad",
+
+			"/packs/agregar", "/packs/quitar", "/packs/carrito", "/promociones/agregar",
+
+			"/pedido/{id}/estado",
+
+			"/login", "/logout", "/usuarios", "/configuracion" })
 	public String pendiente(HttpServletResponse response) {
 		response.setStatus(501);
 		return "vistas/pendiente";

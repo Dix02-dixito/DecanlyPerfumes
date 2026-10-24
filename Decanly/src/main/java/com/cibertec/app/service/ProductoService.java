@@ -1,5 +1,6 @@
 package com.cibertec.app.service;
 
+import org.springframework.web.multipart.MultipartFile;
 import com.cibertec.app.entity.Producto;
 
 
@@ -7,7 +8,7 @@ import com.cibertec.app.entity.Producto;
 public interface ProductoService {
 	void guardar(Producto producto);
 
-	void actualizar(Long id, Producto producto);
+	void actualizar(Long id, Producto producto, MultipartFile foto);
 
-	void retirar(Long id);
+	void cambiarEstado(Long id, Integer version, boolean activo);
 }

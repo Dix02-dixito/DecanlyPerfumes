@@ -1,156 +1,143 @@
 <!doctype html>
 <html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
-  <body>
-    <div class="editor-page panel" th:fragment="formulario">
-      <div class="modal-content">
-        <h2
-          th:text="${idEdicion == null} ? 'Nuevo perfume' : 'Editar perfume'"
-        ></h2>
-        <form
-          id="product-form"
-          class="form-grid"
-          th:object="${producto}"
-          th:action="${idEdicion == null} ? @{/producto} : @{/producto/{id}(id=${idEdicion})}"
-          method="post"
-          enctype="multipart/form-data"
-        >
-          <input type="hidden" th:field="*{version}" />
-          <div
-            class="form-feedback error wide"
-            role="alert"
-            th:if="${#fields.hasErrors('*')}"
-          >
-            <p th:each="error : ${#fields.errors('*')}" th:text="${error}"></p>
-            <p>
-              Corrige los datos. Selecciona de nuevo los archivos antes de
-              guardar.
-            </p>
-          </div>
-          <label class="wide"
-            >Nombre<input
-              class="field"
-              th:field="*{nombre}"
-              maxlength="100"
-              required
-          /></label>
-          <label
-            >Marca<select class="field" th:field="*{marca.id}" required>
-              <option value="">Selecciona una marca</option>
-              <option
-                th:each="marca : ${marcaList}"
-                th:value="${marca.id}"
-                th:text="${marca.nombre}"
-              ></option></select
-          ></label>
-          <label
-            >Ocasión<select class="field" th:field="*{ocasion}">
-              <option value="Día">Día</option>
-              <option value="Noche">Noche</option>
-            </select></label
-          >
-          <fieldset class="wide variant-fields">
-            <legend>Presentaciones</legend>
-            <div class="variant-inputs" th:each="ml, estado : ${tamanos}">
-              <strong th:text="${ml}+' ml'"></strong
-              ><label
-                >Precio (S/)<input
-                  class="field"
-                  type="number"
-                  min="0.01"
-                  max="10000"
-                  step="0.01"
-                  required
-                  th:field="*{presentaciones[__${estado.index}__].precio}" /></label
-              ><label
-                >Stock<input
-                  class="field"
-                  type="number"
-                  min="0"
-                  max="9999"
-                  step="1"
-                  required
-                  th:field="*{presentaciones[__${estado.index}__].stock}"
-              /></label>
-            </div>
-          </fieldset>
-          <label
-            >Descuento (%)<input
-              class="field"
-              type="number"
-              min="0"
-              max="70"
-              step="1"
-              required
-              th:field="*{descuento}"
-          /></label>
-          <label
-            >Foto principal<input
-              class="field"
-              type="file"
-              name="foto"
-              accept="image/png,image/jpeg,image/webp"
-              th:required="${idEdicion == null}"
-          /></label>
-          <div class="photo-preview wide" id="photo-preview">
-            <img
-              th:if="${imagenActual != null}"
-              th:src="@{/imagenes/{id}(id=${imagenActual})}"
-              alt="Foto principal actual"
-            />
-          </div>
-          <p class="hint wide">
-            PNG, JPG o WebP, hasta 2 MB. Deja la foto vacía al editar para
-            conservar la actual.
-          </p>
-          <label class="wide"
-            >Descripción para la búsqueda<input
-              class="field"
-              th:field="*{notas}"
-              maxlength="400"
-              placeholder="Ej. Fragancia fresca para el día"
-          /></label>
-          <fieldset class="gallery-editor wide">
-            <legend>Fotografías del modal</legend>
-            <p class="hint">
-              La portada aparece primero. Puedes guardar hasta seis fotos
-              adicionales.
-            </p>
-            <div
-              class="gallery-editor-list"
-              th:unless="${#lists.isEmpty(galeriaActual)}"
-            >
-              <label
-                class="gallery-editor-card"
-                th:each="foto : ${galeriaActual}"
-                ><span class="gallery-editor-photo"
-                  ><img
-                    th:src="@{/imagenes/{id}(id=${foto.imagenId})}"
-                    th:alt="${foto.descripcion}" /></span
-                ><span class="check-label"
-                  ><input
-                    type="checkbox"
-                    name="eliminarImagenes"
-                    th:value="${foto.imagenId}"
-                  />Quitar al guardar</span
-                ></label
-              >
-            </div>
-            <label
-              >Agregar fotografías<input
-                class="field"
-                type="file"
-                name="fotosGaleria"
-                multiple
-                accept="image/png,image/jpeg,image/webp"
-            /></label>
-          </fieldset>
-          <div class="form-buttons wide">
-            <button class="btn save-product" type="submit">
-              Guardar producto</button
-            ><a class="text-link" th:href="@{/producto}">Cancelar</a>
-          </div>
-        </form>
-      </div>
-    </div>
-  </body>
+
+<body>
+
+	<div class="editor-page panel" th:fragment="formulario">
+		<div class="modal-content">
+
+			<h2 th:text="${idEdicion == null}
+                ? 'Nuevo perfume' : 'Editar perfume'">
+			</h2>
+
+			<form id="product-form" class="form-grid" th:object="${producto}" th:action="${idEdicion == null}
+                ? @{/producto}
+                : @{/producto/{id}(id=${idEdicion})}" method="post" enctype="multipart/form-data">
+
+				<input type="hidden" th:field="*{version}" />
+
+				<div class="form-feedback error wide" role="alert" th:if="${#fields.hasErrors('*')}">
+
+					<p th:each="error : ${#fields.errors('*')}" th:text="${error}">
+					</p>
+
+					<p>Corrige los datos indicados y vuelve a guardar.</p>
+				</div>
+
+				<label class="wide">
+					Nombre
+					<input class="field" th:field="*{nombre}" maxlength="100" required />
+				</label>
+
+				<label>
+					Marca
+					<select class="field" th:field="*{marca.id}" required>
+						<option value="">Selecciona una marca</option>
+						<option th:each="marca : ${marcaList}" th:value="${marca.id}" th:text="${marca.nombre}">
+						</option>
+					</select>
+				</label>
+
+				<label>
+					Ocasión
+					<select class="field" th:field="*{ocasion}">
+						<option value="Día">Día</option>
+						<option value="Noche">Noche</option>
+					</select>
+				</label>
+
+				<fieldset class="wide variant-fields">
+					<legend>Presentaciones</legend>
+
+					<div class="variant-inputs" th:each="ml, estado : ${tamanos}">
+
+						<strong th:text="${ml} + ' ml'"></strong>
+
+						<label>
+							Precio (S/)
+							<input class="field" type="number" min="0.01" max="10000" step="0.01" required
+								th:field="*{presentaciones[__${estado.index}__].precio}" />
+						</label>
+
+						<label>
+							Stock
+							<input class="field" type="number" min="0" max="9999" step="1" required
+								th:field="*{presentaciones[__${estado.index}__].stock}" />
+						</label>
+					</div>
+				</fieldset>
+
+				<label>
+					Descuento (%)
+					<input class="field" type="number" min="0" max="70" step="1" required th:field="*{descuento}" />
+				</label>
+
+				<label>
+					Foto principal
+					<input class="field" type="file" name="foto" accept="image/png,image/jpeg,image/webp"
+						th:required="${idEdicion == null}" />
+				</label>
+
+				<div class="photo-preview wide" id="photo-preview">
+					<img th:if="${imagenActual != null}" th:src="@{/imagenes/{id}(id=${imagenActual})}"
+						alt="Foto principal actual" />
+				</div>
+
+				<p class="hint wide">
+					PNG, JPG o WebP, hasta 2 MB.
+					Deja la foto vacía al editar para conservar la actual.
+				</p>
+
+				<label class="wide">
+					Descripción para la búsqueda
+					<input class="field" th:field="*{notas}" maxlength="400"
+						placeholder="Ej. Fragancia fresca para el día" />
+				</label>
+
+				<fieldset class="gallery-editor wide">
+					<legend>Fotografías del modal</legend>
+
+					<p class="hint">
+						La portada aparece primero.
+						Puedes guardar hasta seis fotos adicionales.
+					</p>
+
+					<div class="gallery-editor-list" th:unless="${#lists.isEmpty(galeriaActual)}">
+
+						<label class="gallery-editor-card" th:each="foto : ${galeriaActual}">
+
+							<span class="gallery-editor-photo">
+								<img th:src="@{/imagenes/{id}(id=${foto.imagenId})}" th:alt="${foto.descripcion}" />
+							</span>
+
+							<span class="check-label">
+								<input type="checkbox" name="eliminarImagenes" th:value="${foto.imagenId}" />
+								Quitar al guardar
+							</span>
+						</label>
+					</div>
+
+					<label>
+						Agregar fotografías
+						<input class="field" type="file" name="fotosGaleria" multiple
+							accept="image/png,image/jpeg,image/webp" />
+					</label>
+				</fieldset>
+
+				<div class="form-buttons wide">
+					<button class="btn save-product" type="submit">
+						Guardar producto
+					</button>
+
+					<a class="text-link" th:href="@{/producto}">
+						Cancelar
+					</a>
+				</div>
+
+			</form>
+		</div>
+	</div>
+
+</body>
+
 </html>

@@ -26,12 +26,21 @@
             </div>
             <a class="btn" th:href="@{/producto/new}">Nuevo perfume +</a>
           </div>
+		  
           <p
             class="notice"
             role="status"
             th:if="${exito}"
             th:text="${exito}"
           ></p>
+		  
+		  <p
+		      class="notice"
+		      role="alert"
+		      th:if="${error != null}"
+		      th:text="${error}">
+		  </p>
+		  
           <div class="admin-stats">
             <div class="stat">
               <strong th:text="${totalProductos}"></strong
