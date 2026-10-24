@@ -3,6 +3,7 @@ package com.cibertec.app.service;
 import java.util.List;
 import com.cibertec.app.entity.CarritoItem;
 import java.math.BigDecimal;
+import com.cibertec.app.entity.Pedido;
 
 public interface PedidoService {
 
@@ -18,4 +19,8 @@ public interface PedidoService {
     void cambiarEstado(
             Long id,
             String estado);
+    
+    Pedido buscar(Long id);
+    
+    
 }

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Detalle del pedido')}">
+    <title>Detalle del pedido</title>
+</head>
+
+<body>
+    <div th:replace="~{fragments/layout :: cabecera}"></div>
+
+    <main id="app" tabindex="-1">
+        <section class="admin-shell">
+            <aside th:replace="~{fragments/admin :: sidebar}"></aside>
+
+            <div class="admin-main">
+                <div class="admin-heading">
+                    <div>
+                        <span class="eyebrow">Ventas y entregas</span>
+                        <h1 th:text="|Pedido #${pedido.id}|"></h1>
+                    </div>
+
+                    <a class="btn light" th:href="@{/pedidos}">
+                        Volver a pedidos
+                    </a>
+                </div>
+
+                <section class="panel">
+                    <h2>Datos del cliente</h2>
+
+                    <p>
+                        <strong>Nombre:</strong>
+                        <span th:text="${pedido.nombreCliente}"></span>
+                    </p>
+
+                    <p>
+                        <strong>Teléfono:</strong>
+                        <span th:text="${pedido.telefono}"></span>
+                    </p>
+
+                    <p>
+                        <strong>Dirección:</strong>
+                        <span th:text="${pedido.direccion}"></span>
+                    </p>
+
+                    <p>
+                        <strong>Fecha:</strong>
+                        <span th:text="${#temporals.format(
+                            pedido.fechaPedido, 'dd/MM/yyyy HH:mm')}">
+                        </span>
+                    </p>
+
+                    <p>
+                        <strong>Estado:</strong>
+                        <span class="status-pill"
+                              th:text="${pedido.estadoPedido}">
+                        </span>
+                    </p>
+                </section>
+
+                <section class="panel">
+                    <h2>Perfumes del pedido</h2>
+
+                    <div class="table-wrap">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Perfume</th>
+                                    <th>Tamaño</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio unitario</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr th:each="d : ${pedido.detalles}">
+                                    <td th:text="${d.producto.nombre}"></td>
+
+                                    <td th:text="|${d.ml} ml|"></td>
+
+                                    <td th:text="${d.cantidad}"></td>
+
+                                    <td th:text="|S/ ${#numbers.formatDecimal(
+                                        d.precio, 1, 2, 'POINT')}|">
+                                    </td>
+
+                                    <td th:text="|S/ ${#numbers.formatDecimal(
+                                        d.subtotal, 1, 2, 'POINT')}|">
+                                    </td>
+                                </tr>
+
+                                <tr th:if="${#lists.isEmpty(pedido.detalles)}">
+                                    <td colspan="5">
+                                        Este pedido no tiene detalles registrados.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div th:unless="${#lists.isEmpty(pedido.detalles)}">
+                        <div class="summary-row">
+                            <span>Subtotal</span>
+                            <span th:text="|S/ ${#numbers.formatDecimal(
+                                subtotal, 1, 2, 'POINT')}|">
+                            </span>
+                        </div>
+
+                        <div class="summary-row">
+                            <span>Envío</span>
+                            <span th:text="|S/ ${#numbers.formatDecimal(
+                                envio, 1, 2, 'POINT')}|">
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="summary-row total">
+                        <strong>Total registrado</strong>
+                        <strong th:text="|S/ ${#numbers.formatDecimal(
+                            pedido.totalPedido, 1, 2, 'POINT')}|">
+                        </strong>
+                    </div>
+                </section>
+            </div>
+        </section>
+    </main>
+
+    <div th:replace="~{fragments/layout :: pie}"></div>
+</body>
+
+</html>

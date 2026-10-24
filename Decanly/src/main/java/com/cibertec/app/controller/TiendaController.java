@@ -20,37 +20,24 @@ public class TiendaController {
 	private CatalogoService catalogo;
 
 	@ModelAttribute
-	public void comunes(
-	        Model m,
-	        HttpSession session) {
+	public void comunes(Model m, HttpSession session) {
 
-	    List<?> carrito =
-	            (List<?>) session.getAttribute(
-	                    "carrito");
+		List<?> carrito = (List<?>) session.getAttribute("carrito");
 
-	    if (carrito == null) {
-	        carrito = List.of();
-	    }
+		if (carrito == null) {
+			carrito = List.of();
+		}
 
-	    m.addAttribute(
-	            "carrito",
-	            carrito);
+		m.addAttribute("carrito", carrito);
 
-	    m.addAttribute(
-	            "cantidadCarrito",
-	            carrito.size());
+		m.addAttribute("cantidadCarrito",
+				carrito.stream().map(CarritoItem.class::cast).mapToInt(CarritoItem::getCantidad).sum());
 
-	    m.addAttribute(
-	            "marcas",
-	            catalogo.marcas());
+		m.addAttribute("marcas", catalogo.marcas());
 
-	    m.addAttribute(
-	            "descuentoPack",
-	            catalogo.descuentoPack());
+		m.addAttribute("descuentoPack", catalogo.descuentoPack());
 
-	    m.addAttribute(
-	            "tamanos",
-	            new int[]{3,5,10});
+		m.addAttribute("tamanos", new int[] { 3, 5, 10 });
 	}
 
 	@GetMapping("/")
@@ -102,52 +89,45 @@ public class TiendaController {
 	}
 
 	@GetMapping("/carrito")
-	public String carrito(
-	        HttpSession session,
-	        Model model) {
+	public String carrito(HttpSession session, Model model) {
 
-	    List<CarritoItem> carrito =
-	            (List<CarritoItem>) session.getAttribute("carrito");
+		List<CarritoItem> carrito = (List<CarritoItem>) session.getAttribute("carrito");
 
-	    if (carrito == null) {
-	        carrito = new ArrayList<>();
-	    }
+		if (carrito == null) {
+			carrito = new ArrayList<>();
+		}
 
-	    BigDecimal subtotal = BigDecimal.ZERO;
+		BigDecimal subtotal = BigDecimal.ZERO;
 
-	    for (CarritoItem item : carrito) {
-	        subtotal = subtotal.add(item.getSubtotal());
-	    }
+		for (CarritoItem item : carrito) {
+			subtotal = subtotal.add(item.getSubtotal());
+		}
 
-	    BigDecimal envio;
-	    BigDecimal faltante;
+		BigDecimal envio;
+		BigDecimal faltante;
 
-	    if (subtotal.compareTo(new BigDecimal("200")) >= 0) {
+		if (subtotal.compareTo(new BigDecimal("200")) >= 0) {
 
-	        envio = BigDecimal.ZERO;
-	        faltante = BigDecimal.ZERO;
+			envio = BigDecimal.ZERO;
+			faltante = BigDecimal.ZERO;
 
-	    } else {
+		} else {
 
-	        envio = new BigDecimal("15");
+			envio = new BigDecimal("15");
 
-	        faltante =
-	                new BigDecimal("200")
-	                        .subtract(subtotal);
-	    }
+			faltante = new BigDecimal("200").subtract(subtotal);
+		}
 
-	    BigDecimal total =
-	            subtotal.add(envio);
+		BigDecimal total = subtotal.add(envio);
 
-	    model.addAttribute("carrito", carrito);
-	    model.addAttribute("subtotal", subtotal);
-	    model.addAttribute("envio", envio);
-	    model.addAttribute("total", total);
-	    model.addAttribute("faltante", faltante);
+		model.addAttribute("carrito", carrito);
+		model.addAttribute("subtotal", subtotal);
+		model.addAttribute("envio", envio);
+		model.addAttribute("total", total);
+		model.addAttribute("faltante", faltante);
 
-	    return "carrito/index";
+		return "carrito/index";
 	}
-
 
 	@GetMapping("/contacto")
 	public String contacto() {

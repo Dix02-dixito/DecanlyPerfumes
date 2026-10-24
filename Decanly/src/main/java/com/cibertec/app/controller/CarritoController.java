@@ -14,114 +14,123 @@ import com.cibertec.app.entity.CarritoItem;
 import com.cibertec.app.entity.Presentacion;
 import com.cibertec.app.entity.Producto;
 import com.cibertec.app.service.CatalogoService;
+import java.util.Objects;
+
+import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.util.WebUtils;
 
 import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class CarritoController {
 
-    private final CatalogoService catalogo;
-    private final CarritoService carritoService;
+	private final CarritoService carritoService;
 
-    public CarritoController(
-            CatalogoService catalogo,
-            CarritoService carritoService) {
+	public CarritoController(CarritoService carritoService) {
+	    this.carritoService = carritoService;
+	}
 
-        this.catalogo = catalogo;
-        this.carritoService = carritoService;
-    }
+	@PostMapping("/carrito/{tipo:agregar|promocion}")
+	public String agregar(
+	        @PathVariable("tipo") String tipo,
+	        @RequestParam(name = "productoId", required = false) Long productoId,
+	        @RequestParam(name = "ml", required = false) Integer ml,
+	        @RequestParam(name = "cantidad", defaultValue = "1") Integer cantidad,
+	        @RequestParam(name = "packId", required = false) Long packId,
+	        @RequestParam(name = "destino", defaultValue = "carrito") String destino,
+	        HttpSession session,
+	        RedirectAttributes avisos) {
 
-    @PostMapping("/carrito/agregar")
-    public String agregar(
-            @RequestParam Long productoId,
-            @RequestParam Integer ml,
-            @RequestParam Integer cantidad,
-            HttpSession session) {
+	    try {
+	        actualizarCarrito(tipo, productoId, ml, cantidad, packId, session);
 
-        Producto producto =
-                catalogo.buscar(productoId);
+	        if ("comprar".equals(destino)) {
+	            return "redirect:/carrito#datos-pedido";
+	        }
 
-        if (producto == null) {
-            return "redirect:/catalogo";
-        }
+	        avisos.addFlashAttribute(
+	                "exito", "Selección añadida al carrito.");
 
-        Presentacion presentacion =
-                producto.buscarPresentacion(ml);
+	    } catch (IllegalArgumentException ex) {
+	        avisos.addFlashAttribute("error", ex.getMessage());
+	    }
 
-        if (presentacion == null) {
-            return "redirect:/catalogo";
-        }
+	    return "promocion".equals(tipo)
+	            ? "redirect:/promociones"
+	            : "redirect:/catalogo";
+	}
 
-        List<CarritoItem> carrito =
-                (List<CarritoItem>)
-                        session.getAttribute("carrito");
+	@PostMapping("/carrito/vaciar")
+	public String vaciar(HttpSession session) {
 
-        if (carrito == null) {
-            carrito = new ArrayList<>();
-        }
+		session.removeAttribute("carrito");
 
-        CarritoItem item =
-                new CarritoItem();
+		return "redirect:/carrito";
+	}
 
-        item.setProductoId(productoId);
-        item.setNombre(
-                producto.getNombre());
-        item.setImagenId(
-        	    producto.getImagen().getId()
-        	);
-        item.setMl(ml);
-        item.setCantidad(cantidad);
-        item.setPrecio(
-                presentacion.getPrecioFinal());
+	@PostMapping(
+	        value = "/carrito/{tipo:agregar|promocion}/ajax",
+	        produces = "application/json")
+	public ResponseEntity<Map<String, Object>> agregarAjax(
+	        @PathVariable("tipo") String tipo,
+	        @RequestParam(name = "productoId", required = false) Long productoId,
+	        @RequestParam(name = "ml", required = false) Integer ml,
+	        @RequestParam(name = "cantidad", defaultValue = "1") Integer cantidad,
+	        @RequestParam(name = "packId", required = false) Long packId,
+	        HttpSession session) {
 
-        carrito.add(item);
+	    try {
+	        int unidades = actualizarCarrito(
+	                tipo, productoId, ml, cantidad, packId, session);
 
-        session.setAttribute(
-                "carrito",
-                carrito);
+	        String mensaje = "promocion".equals(tipo)
+	                ? "Promoción añadida al carrito."
+	                : "Producto añadido al carrito.";
 
-        return "redirect:/carrito";
-    }
-    
-    @PostMapping("/carrito/vaciar")
-    public String vaciar(HttpSession session) {
+	        return ResponseEntity.ok(Map.of(
+	                "mensaje", mensaje,
+	                "cantidad", unidades));
 
-        session.removeAttribute("carrito");
+	    } catch (IllegalArgumentException ex) {
+	        return ResponseEntity.badRequest().body(
+	                Map.of("mensaje", ex.getMessage()));
+	    }
+	}
+	
+	private int actualizarCarrito(
+	        String tipo,
+	        Long productoId,
+	        Integer ml,
+	        Integer cantidad,
+	        Long packId,
+	        HttpSession session) {
 
-        return "redirect:/carrito";
-    }
-    
-    @PostMapping("/carrito/promocion")
-    public String agregarPromocion(
-            @RequestParam("packId") Long packId,
-            @RequestParam(name = "destino", defaultValue = "carrito") String destino,
-            HttpSession session,
-            RedirectAttributes avisos) {
+	    synchronized (WebUtils.getSessionMutex(session)) {
 
-        Object guardado = session.getAttribute("carrito");
+	        Object guardado = session.getAttribute("carrito");
 
-        List<CarritoItem> actuales = guardado instanceof List<?> lista
-                ? lista.stream().map(CarritoItem.class::cast).toList()
-                : List.of();
+	        List<CarritoItem> actuales = guardado instanceof List<?> lista
+	                ? lista.stream().map(CarritoItem.class::cast).toList()
+	                : List.of();
 
-        try {
-            List<CarritoItem> resultado =
-                    carritoService.agregarPromocion(packId, actuales);
+	        if ("promocion".equals(tipo) && packId == null) {
+	            throw new IllegalArgumentException(
+	                    "Selecciona una promoción.");
+	        }
 
-            session.setAttribute("carrito", resultado);
+	        List<CarritoItem> resultado = "promocion".equals(tipo)
+	                ? carritoService.agregarPromocion(packId, actuales)
+	                : carritoService.agregarProducto(
+	                        productoId, ml, cantidad, actuales);
 
-            if ("comprar".equals(destino)) {
-                return "redirect:/carrito#datos-pedido";
-            }
+	        session.setAttribute("carrito", resultado);
 
-            avisos.addFlashAttribute(
-                    "exito", "Promoción agregada al carrito.");
-
-            return "redirect:/promociones";
-
-        } catch (IllegalArgumentException ex) {
-            avisos.addFlashAttribute("error", ex.getMessage());
-            return "redirect:/promociones";
-        }
-    }
+	        return resultado.stream()
+	                .mapToInt(CarritoItem::getCantidad)
+	                .sum();
+	    }
+	}
 }

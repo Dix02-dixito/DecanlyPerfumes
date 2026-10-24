@@ -268,4 +268,10 @@ public class PedidoServiceImpl implements PedidoService {
 
 	    pedido.setEstadoPedido(estado);
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Pedido buscar(Long id) {
+	    return pedidoRepository.buscarConDetalles(id).orElse(null);
+	}
 }

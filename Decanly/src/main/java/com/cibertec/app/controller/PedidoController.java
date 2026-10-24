@@ -8,8 +8,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 import jakarta.servlet.http.HttpSession;
 import com.cibertec.app.entity.CarritoItem;
-import java.math.BigDecimal;
 import java.util.List;
+import java.math.BigDecimal;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.cibertec.app.entity.DetallePedido;
+import com.cibertec.app.entity.Pedido;
 
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -124,5 +132,28 @@ public class PedidoController {
         }
 
         return "redirect:/pedidos";
+    }
+    
+    @GetMapping("/pedidos/{id}")
+    public String detalle(
+            @PathVariable("id") Long id,
+            Model model) {
+
+        Pedido pedido = pedidoService.buscar(id);
+
+        if (pedido == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+
+        BigDecimal subtotal = pedido.getDetalles().stream()
+                .map(DetallePedido::getSubtotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        model.addAttribute("pedido", pedido);
+        model.addAttribute("subtotal", subtotal);
+        model.addAttribute(
+                "envio", pedido.getTotalPedido().subtract(subtotal));
+
+        return "pedido/detalle";
     }
 }

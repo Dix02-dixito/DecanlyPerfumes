@@ -1,100 +1,98 @@
 <!doctype html>
 <html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
-  <head th:replace="~{fragments/layout :: head('Catálogo')}">
-    <title>Catálogo · Decanly</title>
-  </head>
-  <body data-route="catalogo" data-page="catalogo/index">
-    <div th:replace="~{fragments/layout :: cabecera}"></div>
-    <div
-      id="connection-status"
-      class="connection-status"
-      role="status"
-      hidden=""
-    ></div>
-    <main id="app" tabindex="-1">
-      <section class="page-head">
-        <div class="eyebrow">La colección Decanly</div>
-        <h1>Tu próximo favorito.</h1>
-        <p>Perfumes que quieres conocer. En decants de 3, 5 y 10 ml.</p>
-      </section>
-      <section class="section shop">
-        <form class="filters" th:action="@{/catalogo}" method="get">
-          <div class="filter-heading">
-            <svg
-              class="ui-icon"
-              viewbox="0 0 24 24"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path d="M4 6h16M4 12h16M4 18h16"></path>
-              <circle cx="8" cy="6" r="2"></circle>
-              <circle cx="16" cy="12" r="2"></circle>
-              <circle cx="10" cy="18" r="2"></circle>
-            </svg>
-            Filtrar colección
-          </div>
-          <label for="search">BUSCAR PERFUME</label
-          ><input
-            id="search" name="q" th:value="${q}"
-            class="field"
-            placeholder="Nombre, marca o nota…"
-            value=""
-            type="search"
-          />
-          <label for="brand-filter">MARCA</label
-          ><select id="brand-filter" name="marca" class="field">
-            <option value="">Todas las marcas</option>
-            <option th:each="m : ${marcas}" th:value="${m.nombre}" th:text="${m.nombre}" th:selected="${m.nombre == marcaElegida}"></option>
-          </select>
-          <label for="category-filter">TU ESTILO</label
-          ><select class="field" id="category-filter" name="estilo">
-            <option value="">Todos los aromas</option>
-            <option value="Verano" th:selected="${estilo == 'Verano'}">Verano</option>
-            <option value="Invierno" th:selected="${estilo == 'Invierno'}">Invierno</option>
-            <option value="Dulce" th:selected="${estilo == 'Dulce'}">Dulce</option>
-            <option value="Amaderado" th:selected="${estilo == 'Amaderado'}">Amaderado</option>
-            <option value="Limpio" th:selected="${estilo == 'Limpio'}">Limpio</option>
-            <option value="Floral" th:selected="${estilo == 'Floral'}">Floral</option>
-          </select>
-          <label>OCASIÓN</label>
-          <div class="filter-buttons">
-  <button name="ocasion" value="" th:classappend="${ocasion == ''} ? 'selected'">Todas</button>
-  <button name="ocasion" value="Día" th:classappend="${ocasion == 'Día'} ? 'selected'">Día</button>
-  <button name="ocasion" value="Noche" th:classappend="${ocasion == 'Noche'} ? 'selected'">Noche</button>
-</div><button type="submit" class="text-link">Aplicar filtros</button>
-          <div class="format-note">
-            <svg
-              class="ui-icon"
-              viewbox="0 0 24 24"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path d="M9 3h6v4H9V3Zm0 4v3H7v11h10V10h-2V7M7 13h10"></path>
-            </svg>
-            <p>
-              <b>Una fragancia, tres tamaños.</b><br />3 ml para probar · 5 ml
-              para descubrir<br />10 ml para llevar contigo
-            </p>
-          </div>
-          <a class="text-link clear" th:href="@{/catalogo}">Limpiar filtros ×</a>
-        </form>
-        <div>
-          <div class="toolbar">
-            <span id="result-count" th:text="${#lists.size(productos)}+' fragancias para descubrir'"></span><form th:action="@{/catalogo}" method="get" class="native-sort">
-<input type="hidden" name="q" th:value="${q}"/><input type="hidden" name="marca" th:value="${marcaElegida}"/>
-<input type="hidden" name="ocasion" th:value="${ocasion}"/><input type="hidden" name="estilo" th:value="${estilo}"/>
-<select name="orden" id="sort" aria-label="Ordenar perfumes">
-              <option value="featured" th:selected="${orden == 'featured'}" selected>Nuestra selección</option>
-              <option value="price-up" th:selected="${orden == 'price-up'}">Menor precio</option>
-              <option value="price-down" th:selected="${orden == 'price-down'}">Mayor precio</option>
-              <option value="name" th:selected="${orden == 'name'}">Nombre A–Z</option>
-            </select><button class="text-link">Ordenar</button></form>
-          </div>
-          <div class="grid" id="product-grid"><th:block th:each="p : ${productos}"><article th:replace="~{fragments/tienda :: tarjeta(${p},'carrito')}"></article></th:block></div>
-<div class="empty" th:if="${#lists.isEmpty(productos)}"><h2>No encontramos ese aroma.</h2><a class="btn light" th:href="@{/catalogo}">Ver todos los perfumes</a></div>
-        </div>
-      </section>
-    </main>
-    <div th:replace="~{fragments/layout :: pie}"></div>
-  </body>
+
+<head th:replace="~{fragments/layout :: head('Catálogo')}">
+	<title>Catálogo · Decanly</title>
+</head>
+
+<body data-route="catalogo" data-page="catalogo/index">
+	<div th:replace="~{fragments/layout :: cabecera}"></div>
+	<div id="connection-status" class="connection-status" role="status" hidden=""></div>
+	<main id="app" tabindex="-1">
+		<p class="notice" role="status" th:if="${exito != null}" th:text="${exito}">
+		</p>
+		<p class="notice" role="alert" th:if="${error != null}" th:text="${error}">
+		</p>
+		<section class="page-head">
+			<div class="eyebrow">La colección Decanly</div>
+			<h1>Tu próximo favorito.</h1>
+			<p>Perfumes que quieres conocer. En decants de 3, 5 y 10 ml.</p>
+		</section>
+		<section class="section shop">
+			<form class="filters" th:action="@{/catalogo}" method="get">
+				<div class="filter-heading">
+					<svg class="ui-icon" viewbox="0 0 24 24" aria-hidden="true" focusable="false">
+						<path d="M4 6h16M4 12h16M4 18h16"></path>
+						<circle cx="8" cy="6" r="2"></circle>
+						<circle cx="16" cy="12" r="2"></circle>
+						<circle cx="10" cy="18" r="2"></circle>
+					</svg>
+					Filtrar colección
+				</div>
+				<label for="search">BUSCAR PERFUME</label><input id="search" name="q" th:value="${q}" class="field"
+					placeholder="Nombre, marca o nota…" value="" type="search" />
+				<label for="brand-filter">MARCA</label><select id="brand-filter" name="marca" class="field">
+					<option value="">Todas las marcas</option>
+					<option th:each="m : ${marcas}" th:value="${m.nombre}" th:text="${m.nombre}"
+						th:selected="${m.nombre == marcaElegida}"></option>
+				</select>
+				<label for="category-filter">TU ESTILO</label><select class="field" id="category-filter" name="estilo">
+					<option value="">Todos los aromas</option>
+					<option value="Verano" th:selected="${estilo == 'Verano'}">Verano</option>
+					<option value="Invierno" th:selected="${estilo == 'Invierno'}">Invierno</option>
+					<option value="Dulce" th:selected="${estilo == 'Dulce'}">Dulce</option>
+					<option value="Amaderado" th:selected="${estilo == 'Amaderado'}">Amaderado</option>
+					<option value="Limpio" th:selected="${estilo == 'Limpio'}">Limpio</option>
+					<option value="Floral" th:selected="${estilo == 'Floral'}">Floral</option>
+				</select>
+				<label>OCASIÓN</label>
+				<div class="filter-buttons">
+					<button name="ocasion" value="" th:classappend="${ocasion == ''} ? 'selected'">Todas</button>
+					<button name="ocasion" value="Día" th:classappend="${ocasion == 'Día'} ? 'selected'">Día</button>
+					<button name="ocasion" value="Noche"
+						th:classappend="${ocasion == 'Noche'} ? 'selected'">Noche</button>
+				</div><button type="submit" class="text-link">Aplicar filtros</button>
+				<div class="format-note">
+					<svg class="ui-icon" viewbox="0 0 24 24" aria-hidden="true" focusable="false">
+						<path d="M9 3h6v4H9V3Zm0 4v3H7v11h10V10h-2V7M7 13h10"></path>
+					</svg>
+					<p>
+						<b>Una fragancia, tres tamaños.</b><br />3 ml para probar · 5 ml
+						para descubrir<br />10 ml para llevar contigo
+					</p>
+				</div>
+				<a class="text-link clear" th:href="@{/catalogo}">Limpiar filtros ×</a>
+			</form>
+			<div>
+				<div class="toolbar">
+					<span id="result-count" th:text="${#lists.size(productos)}+' fragancias para descubrir'"></span>
+					<form th:action="@{/catalogo}" method="get" class="native-sort">
+						<input type="hidden" name="q" th:value="${q}" /><input type="hidden" name="marca"
+							th:value="${marcaElegida}" />
+						<input type="hidden" name="ocasion" th:value="${ocasion}" /><input type="hidden" name="estilo"
+							th:value="${estilo}" />
+						<select name="orden" id="sort" aria-label="Ordenar perfumes">
+							<option value="featured" th:selected="${orden == 'featured'}" selected>Nuestra selección
+							</option>
+							<option value="price-up" th:selected="${orden == 'price-up'}">Menor precio</option>
+							<option value="price-down" th:selected="${orden == 'price-down'}">Mayor precio</option>
+							<option value="name" th:selected="${orden == 'name'}">Nombre A–Z</option>
+						</select><button class="text-link">Ordenar</button>
+					</form>
+				</div>
+				<div class="grid" id="product-grid">
+					<th:block th:each="p : ${productos}">
+						<article th:replace="~{fragments/tienda :: tarjeta(${p},'carrito')}"></article>
+					</th:block>
+				</div>
+				<div class="empty" th:if="${#lists.isEmpty(productos)}">
+					<h2>No encontramos ese aroma.</h2><a class="btn light" th:href="@{/catalogo}">Ver todos los
+						perfumes</a>
+				</div>
+			</div>
+		</section>
+	</main>
+	<div th:replace="~{fragments/layout :: pie}"></div>
+</body>
+
 </html>

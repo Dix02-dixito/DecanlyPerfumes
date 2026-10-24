@@ -357,11 +357,26 @@ public class PanelController {
 	
 
 	@GetMapping("/pedidos")
-	public String pedidos(Model model) {
+	public String pedidos(
+	        @RequestParam(name = "id", required = false) Long id,
+	        @RequestParam(name = "q", defaultValue = "") String q,
+	        @RequestParam(name = "estado", defaultValue = "") String estado,
+	        Model model) {
 
-		model.addAttribute("pedidos", pedidoRepository.findAll());
+	    String cliente = q.trim();
+	    String filtroEstado = estado.trim();
 
-		return "pedido/index";
+	    model.addAttribute(
+	            "pedidos", pedidoRepository.buscar(id, cliente, filtroEstado));
+
+	    model.addAttribute("idBuscado", id);
+	    model.addAttribute("q", cliente);
+	    model.addAttribute("estado", filtroEstado);
+
+	    model.addAttribute("estados", List.of(
+	            "PENDIENTE", "CONFIRMADO", "ENTREGADO", "CANCELADO"));
+
+	    return "pedido/index";
 	}
 	//
 

@@ -2,126 +2,128 @@
 <html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="~{fragments/layout :: head('Pedidos')}">
-    <title>Pedidos</title>
+	<title>Pedidos</title>
 </head>
 
 <body>
-    <div th:replace="~{fragments/layout :: cabecera}"></div>
+	<div th:replace="~{fragments/layout :: cabecera}"></div>
 
-    <main id="app" tabindex="-1">
-        <section class="admin-shell">
-            <aside th:replace="~{fragments/admin :: sidebar}"></aside>
+	<main id="app" tabindex="-1">
+		<section class="admin-shell">
+			<aside th:replace="~{fragments/admin :: sidebar}"></aside>
 
-            <div class="admin-main">
-                <div class="admin-heading">
-                    <div>
-                        <span class="eyebrow">Ventas y entregas</span>
-                        <h1>Pedidos.</h1>
-                    </div>
-                </div>
+			<div class="admin-main">
+				<div class="admin-heading">
+					<div>
+						<span class="eyebrow">Ventas y entregas</span>
+						<h1>Pedidos.</h1>
+					</div>
+				</div>
 
-                <p class="notice"
-                   role="status"
-                   th:if="${exito != null}"
-                   th:text="${exito}">
-                </p>
+				<p class="notice" role="status" th:if="${exito != null}" th:text="${exito}">
+				</p>
 
-                <p class="notice"
-                   role="alert"
-                   th:if="${error != null}"
-                   th:text="${error}">
-                </p>
+				<p class="notice" role="alert" th:if="${error != null}" th:text="${error}">
+				</p>
 
-                <!-- Búsqueda y filtros -->
-                <form class="admin-toolbar"
-                      th:action="@{/pedidos}"
-                      method="get">
+				<!-- Búsqueda y filtros -->
+				<form class="admin-toolbar" th:action="@{/pedidos}" method="get">
 
-                    <input class="field"
-                           name="q"
-                           placeholder="Referencia o cliente" />
+					<input class="field" type="number" name="id" min="1" step="1" th:value="${idBuscado}"
+						placeholder="ID del pedido" aria-label="ID del pedido" />
 
-                    <select class="field" name="estado">
-                        <option value="">Todos los estados</option>
-                        <option>PENDIENTE</option>
-                        <option>CONFIRMADO</option>
-                        <option>ENTREGADO</option>
-                        <option>CANCELADO</option>
-                    </select>
+					<input class="field" type="search" name="q" th:value="${q}" placeholder="Nombre del cliente"
+						aria-label="Nombre del cliente" />
 
-                    <button class="btn" type="submit">
-                        Consultar
-                    </button>
-                </form>
+					<select class="field" name="estado" aria-label="Estado del pedido">
 
-                <!-- Tabla de pedidos -->
-                <div class="table-wrap">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Referencia</th>
-                                <th>Cliente</th>
-                                <th>Estado</th>
-                                <th>Total</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
+						<option value="">Todos los estados</option>
 
-                        <tbody>
-                            <tr th:each="p : ${pedidos}">
-                                <td th:text="${p.id}"></td>
+						<option th:each="e : ${estados}" th:value="${e}" th:text="${e}" th:selected="${e == estado}">
+						</option>
+					</select>
 
-                                <td th:text="${p.nombreCliente}"></td>
+					<button class="btn" type="submit">
+						Buscar
+					</button>
 
-                                <td th:text="${p.estadoPedido}"></td>
+					<a class="text-link" th:href="@{/pedidos}">
+						Limpiar filtros
+					</a>
+				</form>
 
-                                <td th:text="${p.totalPedido}"></td>
+				<!-- Tabla de pedidos -->
+				<div class="table-wrap">
+					<table class="admin-table">
+						<thead>
+							<tr>
+								<th>ID del pedido</th>
+								<th>Cliente</th>
+								<th>Estado</th>
+								<th>Total</th>
+								<th>Acciones</th>
+							</tr>
+						</thead>
 
-                                <td>
-                                    <div class="native-actions"
-                                         th:if="${p.estadoPedido == 'PENDIENTE'
-                                                  or p.estadoPedido == 'CONFIRMADO'}">
+						<tbody>
+							<tr th:each="p : ${pedidos}">
+								<td th:text="${p.id}"></td>
 
-                                        <form th:action="@{/pedido/{id}/estado(id=${p.id})}"
-                                              method="post">
+								<td th:text="${p.nombreCliente}"></td>
 
-                                            <input type="hidden"
-                                                   name="estado"
-                                                   th:value="${p.estadoPedido == 'PENDIENTE'}
-                                                             ? 'CONFIRMADO' : 'ENTREGADO'" />
+								<td th:text="${p.estadoPedido}"></td>
 
-                                            <button class="btn light"
-                                                    type="submit"
-                                                    th:text="${p.estadoPedido == 'PENDIENTE'}
-                                                             ? 'Confirmar' : 'Entregar'">
-                                            </button>
-                                        </form>
+								<td th:text="${p.totalPedido}"></td>
 
-                                        <form th:action="@{/pedido/{id}/cancelar(id=${p.id})}"
-                                              method="post">
+								<td>
+								    <div class="pedido-actions">
+								        <a class="btn light"
+								           th:href="@{/pedidos/{id}(id=${p.id})}">
+								            Ver detalle
+								        </a>
 
-                                            <button class="text-link"
-                                                    type="submit">
-                                                Cancelar
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
+								        <th:block th:if="${p.estadoPedido == 'PENDIENTE'
+								                         or p.estadoPedido == 'CONFIRMADO'}">
 
-                            <tr th:if="${#lists.isEmpty(pedidos)}">
-                                <td colspan="5">
-                                    No hay pedidos registrados.
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-    </main>
+								            <form th:action="@{/pedido/{id}/estado(id=${p.id})}"
+								                  method="post">
 
-    <div th:replace="~{fragments/layout :: pie}"></div>
+								                <input type="hidden"
+								                       name="estado"
+								                       th:value="${p.estadoPedido == 'PENDIENTE'}
+								                                 ? 'CONFIRMADO' : 'ENTREGADO'" />
+
+								                <button class="btn light"
+								                        type="submit"
+								                        th:text="${p.estadoPedido == 'PENDIENTE'}
+								                                 ? 'Confirmar' : 'Entregar'">
+								                </button>
+								            </form>
+
+								            <form th:action="@{/pedido/{id}/cancelar(id=${p.id})}"
+								                  method="post">
+
+								                <button class="text-link" type="submit">
+								                    Cancelar
+								                </button>
+								            </form>
+								        </th:block>
+								    </div>
+								</td>
+
+							<tr th:if="${#lists.isEmpty(pedidos)}">
+								<td colspan="5">
+									No hay pedidos registrados.
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</section>
+	</main>
+
+	<div th:replace="~{fragments/layout :: pie}"></div>
 </body>
 
 </html>
