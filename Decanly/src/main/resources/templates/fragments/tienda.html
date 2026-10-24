@@ -1,42 +1,68 @@
-<!doctype html><html lang="es" xmlns:th="http://www.thymeleaf.org"><body>
-<article th:fragment="tarjeta(p,destino)" class="card" th:classappend="${!p.conStock} ? 'sold-out'">
-  <a class="card-image" th:href="@{/perfume/{id}(id=${p.id})}">
-    <span class="badge" th:if="${!p.conStock}">Agotado</span>
-    <span class="badge sale" th:if="${p.conStock and p.descuento > 0}" th:text="'−'+${p.descuento}+'%'"></span>
-    <img th:src="@{/imagenes/{id}(id=${p.imagen.id})}" th:alt="${p.nombre}" loading="lazy" width="300" height="330"/>
-    <span class="quick-view">Ver perfume</span>
-  </a>
-  <div class="card-info"><span class="brand" th:text="${p.marca.nombre}"></span>
-    <h3><a th:href="@{/perfume/{id}(id=${p.id})}" th:text="${p.nombre}"></a></h3>
-    <form th:action="${destino == 'pack'} ? @{/packs/agregar} : @{/carrito/agregar}" method="post">
-      <input type="hidden" name="productoId" th:value="${p.id}"/>
-      <input type="hidden" name="cantidad" value="1"/>
-      <div class="card-price"><del th:if="${p.descuento > 0}" th:text="'Desde S/ '+${#numbers.formatDecimal(p.presentaciones[0].precio,1,2,'POINT')}"></del>
-        <strong th:text="'Desde S/ '+${#numbers.formatDecimal(p.presentaciones[0].precioFinal,1,2,'POINT')}"></strong> <small>PEN</small></div>
-      <div class="size-options native-sizes">
-        <label th:each="v,estado : ${p.presentaciones}">
-          <input type="radio" name="ml" th:value="${v.ml}" th:checked="${estado.first}"/>
-          <span th:text="${v.ml}+' ml'" th:classappend="${v.stock == 0} ? 'unavailable'"></span>
-        </label>
-      </div>
-      <button class="card-add" type="submit" th:disabled="${!p.conStock}" th:text="${!p.conStock} ? 'Tamaño agotado' : (${destino == 'pack'} ? '+ Añadir al pack' : '+ Añadir al carrito')"></button>
-    </form>
-  </div>
-</article>
-<article th:fragment="promocion(p)" class="promo" th:classappend="${!p.conStock} ? 'sold-out'">
-  <div class="promo-images"><span class="badge sale" th:text="${p.conStock} ? 'PACK · '+${descuentoPack}+'%' : 'Agotado'"></span>
-    <img th:each="d : ${p.detalles}" th:src="@{/imagenes/{id}(id=${d.producto.imagen.id})}" th:alt="${d.producto.nombre}" loading="lazy"/>
-  </div>
-  <span class="promo-editorial" th:text="${p.etiqueta}"></span><h3 th:text="${p.nombre}"></h3><p class="promo-description" th:text="${p.descripcion}"></p>
-  <div class="promo-price"><span th:text="'Subtotal S/ '+${#numbers.formatDecimal(p.subtotal,1,2,'POINT')}"></span></div>
-  <details class="promo-includes"><summary>Ver perfumes y tamaños</summary><ul>
-    <li th:each="d : ${p.detalles}"><span th:text="${d.producto.nombre}"></span> <span th:text="${d.cantidad}+' × '+${d.ml}+' ml'"></span></li>
-  </ul></details>
-  <form class="promo-actions" th:action="@{/promociones/agregar}" method="post">
-    <input type="hidden" name="packId" th:value="${p.idPack}"/>
-    <button class="btn outline" name="destino" value="carrito" th:disabled="${!p.conStock}">Agregar al carrito +</button>
-    <button class="btn" name="destino" value="comprar" th:disabled="${!p.conStock}">Comprar ahora ↗</button>
-    <button class="text-link" name="destino" value="personalizar">Personalizar este pack</button>
-  </form>
-</article>
-</body></html>
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<body>
+	<article th:fragment="tarjeta(p,destino)" class="card" th:classappend="${!p.conStock} ? 'sold-out'">
+		<a class="card-image" th:href="@{/perfume/{id}(id=${p.id})}">
+			<span class="badge" th:if="${!p.conStock}">Agotado</span>
+			<span class="badge sale" th:if="${p.conStock and p.descuento > 0}" th:text="'−'+${p.descuento}+'%'"></span>
+			<img th:src="@{/imagenes/{id}(id=${p.imagen.id})}" th:alt="${p.nombre}" loading="lazy" width="300"
+				height="330" />
+			<span class="quick-view">Ver perfume</span>
+		</a>
+		<div class="card-info"><span class="brand" th:text="${p.marca.nombre}"></span>
+			<h3><a th:href="@{/perfume/{id}(id=${p.id})}" th:text="${p.nombre}"></a></h3>
+			<form th:action="${destino == 'pack'} ? @{/packs/agregar} : @{/carrito/agregar}" method="post">
+				<input type="hidden" name="productoId" th:value="${p.id}" />
+				<input type="hidden" name="cantidad" value="1" />
+				<div class="card-price"><del th:if="${p.descuento > 0}"
+						th:text="'Desde S/ '+${#numbers.formatDecimal(p.presentaciones[0].precio,1,2,'POINT')}"></del>
+					<strong
+						th:text="'Desde S/ '+${#numbers.formatDecimal(p.presentaciones[0].precioFinal,1,2,'POINT')}"></strong>
+					<small>PEN</small>
+				</div>
+				<div class="size-options native-sizes">
+					<label th:each="v,estado : ${p.presentaciones}">
+						<input type="radio" name="ml" th:value="${v.ml}" th:checked="${estado.first}" />
+						<span th:text="${v.ml}+' ml'" th:classappend="${v.stock == 0} ? 'unavailable'"></span>
+					</label>
+				</div>
+				<button class="card-add" type="submit" th:disabled="${!p.conStock}"
+					th:text="${!p.conStock} ? 'Tamaño agotado' : (${destino == 'pack'} ? '+ Añadir al pack' : '+ Añadir al carrito')"></button>
+			</form>
+		</div>
+	</article>
+	<article th:fragment="promocion(p)" class="promo" th:classappend="${!p.conStock} ? 'sold-out'">
+		<div class="promo-images"><span class="badge sale"
+				th:text="${p.conStock} ? 'PACK · '+${descuentoPack}+'%' : 'Agotado'"></span>
+			<img th:each="d : ${p.detalles}" th:src="@{/imagenes/{id}(id=${d.producto.imagen.id})}"
+				th:alt="${d.producto.nombre}" loading="lazy" />
+		</div>
+		<span class="promo-editorial" th:text="${p.etiqueta}"></span>
+		<h3 th:text="${p.nombre}"></h3>
+		<p class="promo-description" th:text="${p.descripcion}"></p>
+		<div class="promo-price"><span
+				th:text="'Subtotal S/ '+${#numbers.formatDecimal(p.subtotal,1,2,'POINT')}"></span></div>
+		<details class="promo-includes">
+			<summary>Ver perfumes y tamaños</summary>
+			<ul>
+				<li th:each="d : ${p.detalles}"><span th:text="${d.producto.nombre}"></span> <span
+						th:text="${d.cantidad}+' × '+${d.ml}+' ml'"></span></li>
+			</ul>
+		</details>
+		<form class="promo-actions" th:action="@{/promociones/agregar}" method="post">
+			<input type="hidden" name="packId" th:value="${p.idPack}" />
+			<button class="btn outline" type="submit" th:formaction="@{/carrito/promocion}" name="destino"
+				value="carrito" th:disabled="${!p.conStock}">
+				Agregar al carrito +
+			</button>
+
+			<button class="btn" type="submit" th:formaction="@{/carrito/promocion}" name="destino" value="comprar"
+				th:disabled="${!p.conStock}">
+				Comprar ahora ↗
+			</button>
+		</form>
+	</article>
+</body>
+
+</html>
