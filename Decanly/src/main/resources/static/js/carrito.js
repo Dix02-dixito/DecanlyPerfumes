@@ -17,11 +17,13 @@
         );
     }
 
+
+    window.decanlyAvisar = avisar;
     document.addEventListener("submit", (evento) => {
         const formulario = evento.target;
 
         if (!(formulario instanceof HTMLFormElement)
-                || formulario.method !== "post") return;
+            || formulario.method !== "post") return;
 
         const boton = evento.submitter;
 

@@ -16,7 +16,12 @@ import com.cibertec.app.entity.Presentacion;
 import com.cibertec.app.entity.Producto;
 import com.cibertec.app.service.CarritoService;
 import com.cibertec.app.service.CatalogoService;
+import java.util.UUID;
 
+import com.cibertec.app.dto.LineaPack;
+import com.cibertec.app.dto.ResumenPack;
+import com.cibertec.app.dto.SeleccionPack;
+import com.cibertec.app.service.PackPersonalizadoService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -25,6 +30,8 @@ import lombok.RequiredArgsConstructor;
 public class CarritoServiceImpl implements CarritoService {
 
     private final CatalogoService catalogo;
+    private final PackPersonalizadoService packPersonalizadoService;
+    
     @Override
     public List<CarritoItem> agregarProducto(
             Long productoId,
@@ -71,6 +78,8 @@ public class CarritoServiceImpl implements CarritoService {
         CarritoItem existente = actuales.stream()
                 .filter(item ->
                         item.getPackId() == null
+                        && !item.isPackPersonalizado()
+                        && item.getGrupoPack() == null
                         && Objects.equals(item.getProductoId(), productoId)
                         && Objects.equals(item.getMl(), ml)
                         && item.getPrecio() != null
@@ -166,6 +175,74 @@ public class CarritoServiceImpl implements CarritoService {
             item.setMl(detalle.getMl());
             item.setCantidad(detalle.getCantidad());
             item.setPrecio(precio);
+
+            resultado.add(item);
+        }
+
+        return resultado;
+    }
+    
+    @Override
+    public List<CarritoItem> agregarPackPersonalizado(
+            List<SeleccionPack> seleccion,
+            List<CarritoItem> actuales) {
+
+        ResumenPack resumen = packPersonalizadoService.resumir(seleccion);
+
+        if (resumen.faltantes() > 0) {
+            throw new IllegalArgumentException(
+                    "Elige al menos tres perfumes diferentes.");
+        }
+
+        if (!resumen.listo()
+                || resumen.perfumes() != resumen.items().size()) {
+
+            throw new IllegalArgumentException(
+                    "Revisa los perfumes y las existencias de tu selección.");
+        }
+
+        List<CarritoItem> resultado = new ArrayList<>(actuales);
+        String grupo = UUID.randomUUID().toString();
+
+        for (LineaPack linea : resumen.items()) {
+
+            Producto producto = catalogo.buscar(linea.productoId());
+
+            Presentacion presentacion = producto == null
+                    ? null
+                    : producto.buscarPresentacion(linea.ml());
+
+            if (producto == null || !producto.isActivo()
+                    || presentacion == null) {
+
+                throw new IllegalArgumentException(
+                        "Una presentación del pack ya no está disponible.");
+            }
+
+            long unidades = resultado.stream()
+                    .filter(item ->
+                            Objects.equals(
+                                    item.getProductoId(), linea.productoId())
+                            && Objects.equals(item.getMl(), linea.ml()))
+                    .mapToLong(CarritoItem::getCantidad)
+                    .sum();
+
+            if (unidades + linea.cantidad() > presentacion.getStock()) {
+                throw new IllegalArgumentException(
+                        "No hay suficientes unidades de "
+                        + linea.nombre() + " de " + linea.ml()
+                        + " ml, considerando tu carrito.");
+            }
+
+            CarritoItem item = new CarritoItem();
+            item.setProductoId(linea.productoId());
+            item.setImagenId(linea.imagenId());
+            item.setNombre(linea.nombre());
+            item.setMl(linea.ml());
+            item.setCantidad(linea.cantidad());
+            item.setPrecio(linea.precio());
+            item.setPackPersonalizado(true);
+            item.setGrupoPack(grupo);
 
             resultado.add(item);
         }

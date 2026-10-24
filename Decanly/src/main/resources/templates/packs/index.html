@@ -1,72 +1,116 @@
 <!doctype html>
 <html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
-  <head th:replace="~{fragments/layout :: head('Arma tu pack')}">
-    <title>Arma tu pack · Decanly</title>
-  </head>
-  <body data-route="packs" data-page="packs/index">
-    <div th:replace="~{fragments/layout :: cabecera}"></div>
-    <div
-      id="connection-status"
-      class="connection-status"
-      role="status"
-      hidden=""
-    ></div>
-    <main id="app" tabindex="-1">
-      <section class="page-head">
-        <div class="eyebrow">Tu pack, tus reglas</div>
-        <h1>Una colección <em>muy tuya.</em></h1>
-        <p>
-          Elige perfumes distintos, combina tamaños y descubre nuevas versiones
-          de ti.
-        </p>
-      </section>
-      <section class="section split pack-builder" style="padding-top: 15px">
-        <div class="pack-catalog">
-          <form th:action="@{/packs}" method="get"><input
-            class="field"
-            id="search" name="q" th:value="${q}"
-            type="search"
-            placeholder="Busca un perfume para tu pack…"
-            aria-label="Buscar perfumes para el pack"
-            value=""
-          /><button class="text-link">Buscar</button></form>
-          <div class="toolbar">
-            <span id="result-count" th:text="${#lists.size(productos)}+' fragancias para descubrir'"></span>
-          </div>
-          <div class="grid" id="product-grid"><th:block th:each="p : ${productos}"><article th:replace="~{fragments/tienda :: tarjeta(${p},'pack')}"></article></th:block></div>
-        </div>
-        <aside class="panel sticky" id="pack-summary" tabindex="-1">
-          <div class="eyebrow">Hecho por ti</div>
-          <h2>Tu colección</h2>
-          <p class="hint">Mezcla 3 ml, 5 ml y 10 ml como prefieras.</p>
-          <div class="progress"><span style="width: 0%"></span></div>
 
-          <div class="pack-list">
-            <p class="hint">
-              Tu próximo favorito te está esperando. Añade perfumes de la
-              colección.
-            </p>
-          </div>
-          <div class="summary-row">
-            <span>Subtotal</span><span>S/ 0.00</span>
-          </div>
-          <div class="summary-row">
-            <span>Tu ahorro</span><span>−S/ 0.00</span>
-          </div>
-          <div class="summary-row total">
-            <strong>Total del pack</strong><strong>S/ 0.00</strong>
-          </div>
-          <form th:action="@{/packs/carrito}" method="post"><button class="btn" type="submit">
-            Añadir pack al carrito ↗
-          </button></form>
-          <p class="hint">
-            Los descuentos no se acumulan: aplicamos la mejor opción. Envío por
-            coordinar.
-          </p>
-        </aside>
-      </section>
-      <a href="#pack-summary" class="pack-mobile-bar"><span><small>Tu pack · 0 decants</small><strong>S/ 0.00</strong></span><span>Ver selección</span></a>
-    </main>
-    <div th:replace="~{fragments/layout :: pie}"></div>
-  </body>
+<head th:replace="~{fragments/layout :: head('Arma tu pack')}">
+	<title>Arma tu pack · Decanly</title>
+</head>
+
+<body data-route="packs" data-page="packs/index">
+	<div th:replace="~{fragments/layout :: cabecera}"></div>
+	<div id="connection-status" class="connection-status" role="status" hidden=""></div>
+	<main id="app" tabindex="-1">
+		<section class="page-head">
+			<div class="eyebrow">Tu pack, tus reglas</div>
+			<h1>Una colección <em>muy tuya.</em></h1>
+			<p>
+				Elige perfumes distintos, combina tamaños y descubre nuevas versiones
+				de ti.
+			</p>
+		</section>
+		<section class="section split pack-builder" style="padding-top: 15px">
+			<div class="pack-catalog">
+				<form th:action="@{/packs}" method="get"><input class="field" id="search" name="q" th:value="${q}"
+						type="search" placeholder="Busca un perfume para tu pack…"
+						aria-label="Buscar perfumes para el pack" value="" /><button class="text-link">Buscar</button>
+				</form>
+				<div class="toolbar">
+					<span id="result-count" th:text="${#lists.size(productos)}+' fragancias para descubrir'"></span>
+				</div>
+				<div class="grid" id="product-grid">
+					<th:block th:each="p : ${productos}">
+						<article th:replace="~{fragments/tienda :: tarjeta(${p},'pack')}"></article>
+					</th:block>
+				</div>
+			</div>
+			<aside class="panel sticky" id="pack-summary" tabindex="-1" th:attr="data-resumen-url=@{/packs/resumen},
+			                data-quitar-url=@{/packs/quitar/ajax},
+			                data-imagenes-url=@{/imagenes/}">
+
+				<div class="eyebrow">Hecho por ti</div>
+				<h2>Tu colección</h2>
+
+				<p class="hint">
+					Mezcla 3 ml, 5 ml y 10 ml como prefieras.
+				</p>
+
+				<div class="progress" aria-hidden="true">
+					<span id="pack-progress" style="width: 0%"></span>
+				</div>
+
+				<p class="hint" id="pack-status">
+					Elige al menos tres perfumes diferentes.
+				</p>
+
+				<div class="pack-list" id="pack-list">
+					<p class="hint">
+						Añade perfumes de la colección para crear tu pack.
+					</p>
+				</div>
+
+				<template id="pack-item-template">
+					<div class="pack-line">
+						<img data-pack-imagen alt="" loading="lazy" />
+
+						<div>
+							<strong data-pack-nombre></strong>
+							<p data-pack-detalle></p>
+							<p class="form-feedback error" data-pack-error hidden>
+							</p>
+						</div>
+
+						<button type="button" data-quitar-pack aria-label="Quitar perfume">
+							×
+						</button>
+					</div>
+				</template>
+
+				<div class="summary-row">
+					<span>Subtotal</span>
+					<span id="pack-subtotal">S/ 0.00</span>
+				</div>
+
+				<div class="summary-row">
+					<span>Tu ahorro</span>
+					<span id="pack-ahorro">−S/ 0.00</span>
+				</div>
+
+				<div class="summary-row total">
+					<strong>Total del pack</strong>
+					<strong id="pack-total">S/ 0.00</strong>
+				</div>
+
+				<form th:action="@{/packs/carrito}" method="post">
+					<button class="btn" id="pack-to-cart" type="submit" disabled>
+						Añadir pack al carrito ↗
+					</button>
+				</form>
+
+				<p class="hint">
+					Los descuentos no se acumulan: aplicamos la mejor opción.
+					Envío por coordinar.
+				</p>
+			</aside>
+		</section>
+		<a href="#pack-summary" class="pack-mobile-bar">
+			<span>
+				<small id="pack-mobile-count">Tu pack · 0 decants</small>
+				<strong id="pack-mobile-total">S/ 0.00</strong>
+			</span>
+
+			<span>Ver selección</span>
+		</a>
+	</main>
+	<div th:replace="~{fragments/layout :: pie}"></div>
+</body>
+
 </html>

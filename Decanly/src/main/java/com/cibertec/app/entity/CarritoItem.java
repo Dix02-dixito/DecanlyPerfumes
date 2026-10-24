@@ -17,8 +17,12 @@ public class CarritoItem {
 
     private Integer ml;
     private Integer cantidad;
+    
+    private boolean packPersonalizado;
+    private String grupoPack;
 
     private BigDecimal precio;
+    
 
     public BigDecimal getSubtotal() {
         return precio.multiply(BigDecimal.valueOf(cantidad));

@@ -57,6 +57,7 @@ public class PedidoServiceImpl implements PedidoService {
 	            nombre, telefono, direccion, aceptaTerminos, carrito);
 
 	    validarPromociones(carrito);
+	    validarPacksPersonalizados(carrito);
 
 	    Map<Long, Producto> productos = bloquearProductos(
 	            carrito.stream()
@@ -94,9 +95,12 @@ public class PedidoServiceImpl implements PedidoService {
 	                    + " de " + item.getMl() + " ml.");
 	        }
 
+	        boolean perteneceAPack = item.getPackId() != null
+	                || item.isPackPersonalizado();
+
 	        int descuento = Math.max(
 	                producto.getDescuento(),
-	                item.getPackId() == null ? 0 : descuentoPack);
+	                perteneceAPack ? descuentoPack : 0);
 
 	        BigDecimal precio = presentacion.getPrecio()
 	                .multiply(BigDecimal.valueOf(100 - descuento))
@@ -273,5 +277,49 @@ public class PedidoServiceImpl implements PedidoService {
 	@Transactional(readOnly = true)
 	public Pedido buscar(Long id) {
 	    return pedidoRepository.buscarConDetalles(id).orElse(null);
+	}
+	
+	private void validarPacksPersonalizados(List<CarritoItem> carrito) {
+
+	    List<CarritoItem> personalizados = carrito.stream()
+	            .filter(CarritoItem::isPackPersonalizado)
+	            .toList();
+
+	    boolean incompletos = personalizados.stream().anyMatch(item ->
+	            item.getPackId() != null
+	            || item.getGrupoPack() == null
+	            || item.getGrupoPack().isBlank());
+
+	    if (incompletos) {
+	        throw new IllegalArgumentException(
+	                "Un pack personalizado no tiene una identificación válida.");
+	    }
+
+	    List<String> grupos = personalizados.stream()
+	            .map(CarritoItem::getGrupoPack)
+	            .distinct()
+	            .toList();
+
+	    for (String grupo : grupos) {
+
+	        List<CarritoItem> items = carrito.stream()
+	                .filter(item -> grupo.equals(item.getGrupoPack()))
+	                .toList();
+
+	        long diferentes = items.stream()
+	                .map(CarritoItem::getProductoId)
+	                .distinct()
+	                .count();
+
+	        if (diferentes < 3
+	                || diferentes != items.size()
+	                || items.stream().anyMatch(
+	                        item -> !item.isPackPersonalizado())) {
+
+	            throw new IllegalArgumentException(
+	                    "Cada pack personalizado debe conservar "
+	                    + "al menos tres perfumes diferentes.");
+	        }
+	    }
 	}
 }

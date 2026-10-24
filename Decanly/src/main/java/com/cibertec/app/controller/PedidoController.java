@@ -1,6 +1,6 @@
 package com.cibertec.app.controller;
-import java.util.ArrayList;
 
+import java.util.ArrayList;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,137 +23,114 @@ import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.util.WebUtils;
 
-
+import com.cibertec.app.service.WhatsAppService;
 
 import com.cibertec.app.service.PedidoService;
 
 @Controller
 public class PedidoController {
 
-    private final PedidoService pedidoService;
+	private final PedidoService pedidoService;
+	private final WhatsAppService whatsAppService;
 
-    public PedidoController(
-            PedidoService pedidoService) {
+	public PedidoController(PedidoService pedidoService, WhatsAppService whatsAppService) {
 
-        this.pedidoService =
-                pedidoService;
-    }
+		this.pedidoService = pedidoService;
+		this.whatsAppService = whatsAppService;
+	}
 
-    @PostMapping("/pedido/registrar")
-    public String registrar(
-            @RequestParam("nombreCliente") String nombreCliente,
-            @RequestParam("telefono") String telefono,
-            @RequestParam("direccion") String direccion,
-            @RequestParam(name = "aceptaTerminos", defaultValue = "false")
-            boolean aceptaTerminos,
-            HttpSession session,
-            RedirectAttributes avisos) {
+	@PostMapping("/pedido/registrar")
+	public String registrar(@RequestParam("nombreCliente") String nombreCliente,
+			@RequestParam("telefono") String telefono, @RequestParam("direccion") String direccion,
+			@RequestParam(name = "aceptaTerminos", defaultValue = "false") boolean aceptaTerminos, HttpSession session,
+			RedirectAttributes avisos) {
 
-        synchronized (WebUtils.getSessionMutex(session)) {
+		synchronized (WebUtils.getSessionMutex(session)) {
 
-            Object guardado = session.getAttribute("carrito");
+			Object guardado = session.getAttribute("carrito");
 
-            List<CarritoItem> carrito = guardado instanceof List<?> lista
-                    ? lista.stream().map(CarritoItem.class::cast).toList()
-                    : List.of();
+			List<CarritoItem> carrito = guardado instanceof List<?> lista
+					? lista.stream().map(CarritoItem.class::cast).toList()
+					: List.of();
 
-            try {
-                Long id = pedidoService.registrar(
-                        nombreCliente, telefono, direccion,
-                        aceptaTerminos, carrito);
+			try {
+				Long id = pedidoService.registrar(nombreCliente, telefono, direccion, aceptaTerminos, carrito);
 
-                session.removeAttribute("carrito");
+				session.removeAttribute("carrito");
 
-                avisos.addFlashAttribute(
-                        "exito", "Pedido #" + id + " registrado correctamente.");
+				return "redirect:" + whatsAppService.crearEnlace(pedidoService.buscar(id));
 
-            } catch (IllegalArgumentException ex) {
+			} catch (IllegalArgumentException ex) {
 
-                avisos.addFlashAttribute("error", ex.getMessage());
+				avisos.addFlashAttribute("error", ex.getMessage());
 
-            } catch (ConcurrencyFailureException ex) {
+			} catch (ConcurrencyFailureException ex) {
 
-                avisos.addFlashAttribute(
-                        "error",
-                        "Las existencias cambiaron durante la compra. "
-                        + "Revisa el carrito e inténtalo nuevamente.");
-            }
-        }
+				avisos.addFlashAttribute("error",
+						"Las existencias cambiaron durante la compra. " + "Revisa el carrito e inténtalo nuevamente.");
+			}
+		}
 
-        return "redirect:/carrito";
-    }
-    
-    @PostMapping("/pedido/{id}/cancelar")
-    public String cancelar(
-            @PathVariable("id") Long id,
-            RedirectAttributes avisos) {
+		return "redirect:/carrito";
+	}
 
-        try {
-            pedidoService.cancelar(id);
+	@PostMapping("/pedido/{id}/cancelar")
+	public String cancelar(@PathVariable("id") Long id, RedirectAttributes avisos) {
 
-            avisos.addFlashAttribute(
-                    "exito", "El pedido está cancelado.");
+		try {
+			pedidoService.cancelar(id);
 
-        } catch (IllegalArgumentException ex) {
+			avisos.addFlashAttribute("exito", "El pedido está cancelado.");
 
-            avisos.addFlashAttribute("error", ex.getMessage());
+		} catch (IllegalArgumentException ex) {
 
-        } catch (ConcurrencyFailureException ex) {
+			avisos.addFlashAttribute("error", ex.getMessage());
 
-            avisos.addFlashAttribute(
-                    "error",
-                    "El pedido está siendo modificado. Inténtalo nuevamente.");
-        }
+		} catch (ConcurrencyFailureException ex) {
 
-        return "redirect:/pedidos";
-    }
-    
-    @PostMapping("/pedido/{id}/estado")
-    public String cambiarEstado(
-            @PathVariable("id") Long id,
-            @RequestParam("estado") String estado,
-            RedirectAttributes avisos) {
+			avisos.addFlashAttribute("error", "El pedido está siendo modificado. Inténtalo nuevamente.");
+		}
 
-        try {
-            pedidoService.cambiarEstado(id, estado);
+		return "redirect:/pedidos";
+	}
 
-            avisos.addFlashAttribute(
-                    "exito", "Estado del pedido actualizado correctamente.");
+	@PostMapping("/pedido/{id}/estado")
+	public String cambiarEstado(@PathVariable("id") Long id, @RequestParam("estado") String estado,
+			RedirectAttributes avisos) {
 
-        } catch (IllegalArgumentException ex) {
+		try {
+			pedidoService.cambiarEstado(id, estado);
 
-            avisos.addFlashAttribute("error", ex.getMessage());
+			avisos.addFlashAttribute("exito", "Estado del pedido actualizado correctamente.");
 
-        } catch (ConcurrencyFailureException ex) {
+		} catch (IllegalArgumentException ex) {
 
-            avisos.addFlashAttribute(
-                    "error",
-                    "El pedido está siendo modificado. Recarga e inténtalo nuevamente.");
-        }
+			avisos.addFlashAttribute("error", ex.getMessage());
 
-        return "redirect:/pedidos";
-    }
-    
-    @GetMapping("/pedidos/{id}")
-    public String detalle(
-            @PathVariable("id") Long id,
-            Model model) {
+		} catch (ConcurrencyFailureException ex) {
 
-        Pedido pedido = pedidoService.buscar(id);
+			avisos.addFlashAttribute("error", "El pedido está siendo modificado. Recarga e inténtalo nuevamente.");
+		}
 
-        if (pedido == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
+		return "redirect:/pedidos";
+	}
 
-        BigDecimal subtotal = pedido.getDetalles().stream()
-                .map(DetallePedido::getSubtotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+	@GetMapping("/pedidos/{id}")
+	public String detalle(@PathVariable("id") Long id, Model model) {
 
-        model.addAttribute("pedido", pedido);
-        model.addAttribute("subtotal", subtotal);
-        model.addAttribute(
-                "envio", pedido.getTotalPedido().subtract(subtotal));
+		Pedido pedido = pedidoService.buscar(id);
 
-        return "pedido/detalle";
-    }
+		if (pedido == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		}
+
+		BigDecimal subtotal = pedido.getDetalles().stream().map(DetallePedido::getSubtotal).reduce(BigDecimal.ZERO,
+				BigDecimal::add);
+
+		model.addAttribute("pedido", pedido);
+		model.addAttribute("subtotal", subtotal);
+		model.addAttribute("envio", pedido.getTotalPedido().subtract(subtotal));
+
+		return "pedido/detalle";
+	}
 }

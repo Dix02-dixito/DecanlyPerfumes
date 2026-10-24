@@ -380,10 +380,6 @@ public class PanelController {
 	}
 	//
 
-	@GetMapping("/usuarios")
-	public String usuarios() {
-		return "usuario/formulario";
-	}
 	
 	//
 	
