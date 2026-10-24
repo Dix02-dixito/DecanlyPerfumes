@@ -1,0 +1,108 @@
+<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="modal">
+
+    <dialog id="modal-marcas" aria-labelledby="titulo-marcas">
+
+        <div class="marca-modal-heading">
+            <h2 id="titulo-marcas">Gestionar marcas</h2>
+
+            <form method="dialog">
+                <button class="text-link" type="submit">
+                    Cerrar
+                </button>
+            </form>
+        </div>
+
+        <p class="notice" role="status"
+           th:if="${exitoMarca != null}"
+           th:text="${exitoMarca}">
+        </p>
+
+        <p class="form-feedback error" role="alert"
+           th:if="${errorMarca != null}"
+           th:text="${errorMarca}">
+        </p>
+
+        <form class="form-grid"
+              th:action="@{/marcas}"
+              th:object="${marca}"
+              method="post">
+
+            <input type="hidden" th:field="*{id}" />
+
+            <h3 class="wide"
+                th:text="${marca.id == null}
+                    ? 'Nueva marca' : 'Editar marca'">
+            </h3>
+
+            <label class="wide">
+                Nombre
+                <input class="field"
+                       th:field="*{nombre}"
+                       maxlength="80"
+                       required
+                       autofocus />
+            </label>
+
+            <div class="form-buttons wide">
+                <button class="btn" type="submit">
+                    Guardar marca
+                </button>
+
+                <a class="text-link"
+                   th:href="@{/marcas}"
+                   th:if="${marca.id != null}">
+                    Cancelar edición
+                </a>
+            </div>
+        </form>
+
+        <div class="table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Marca</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="item : ${marcaList}">
+                        <td data-label="Marca"
+                            th:text="${item.nombre}">
+                        </td>
+
+                        <td data-label="Acciones">
+                            <div class="native-actions">
+
+                                <a class="btn light"
+                                   th:href="@{/marcas(editar=${item.id})}">
+                                    Editar
+                                </a>
+
+                                <form
+                                    th:action="@{/marcas/{id}/eliminar(id=${item.id})}"
+                                    method="post">
+
+                                    <button class="text-link" type="submit">
+                                        Eliminar
+                                    </button>
+                                </form>
+
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(marcaList)}">
+                        <td colspan="2">No hay marcas registradas.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </dialog>
+
+    <script th:if="${abrirMarcas == true}">
+        document.getElementById("modal-marcas").showModal();
+    </script>
+
+</th:block>

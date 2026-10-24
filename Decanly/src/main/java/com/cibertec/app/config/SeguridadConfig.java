@@ -103,6 +103,8 @@ public class SeguridadConfig {
                 .requestMatchers(
                 	    "/producto",
                 	    "/producto/**",
+                	    "/marcas",
+                	    "/marcas/**",
                 	    "/promocion",
                 	    "/promocion/**",
                 	    "/negocio",

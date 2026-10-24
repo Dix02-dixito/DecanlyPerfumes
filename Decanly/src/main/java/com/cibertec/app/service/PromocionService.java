@@ -1,8 +1,18 @@
 package com.cibertec.app.service;
-import com.cibertec.app.entity.*;
-// Integrante 1: promociones. Firmas iniciales: completar parámetros según la guía.
+
+import java.util.List;
+import com.cibertec.app.entity.Pack;
+
 public interface PromocionService {
-    void guardar(Pack pack);
-    void actualizar(Long id, Pack pack);
-    void retirar(Long id);
+
+    List<Pack> listar();
+
+    void guardar(
+            Long id,
+            Pack datos,
+            List<Long> productoIds,
+            List<Integer> ml,
+            List<Integer> cantidades);
+
+    void cambiarEstado(Long id, Integer version, boolean activo);
 }

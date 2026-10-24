@@ -5,6 +5,8 @@ import com.cibertec.app.entity.Pack;
 import com.cibertec.app.repository.PedidoRepository;
 import com.cibertec.app.entity.Marca;
 import com.cibertec.app.entity.Presentacion;
+import com.cibertec.app.entity.PackDetalle;
+import com.cibertec.app.service.PromocionService;
 
 import com.cibertec.app.service.CatalogoService;
 import com.cibertec.app.service.ProductoService;
@@ -36,6 +38,9 @@ public class PanelController {
 
 	@Autowired
 	private PedidoRepository pedidoRepository;
+	
+	@Autowired
+	private PromocionService promocionService;
 
 	// METODO EDITAR PRODUCTOS
 	@InitBinder("producto")
@@ -84,9 +89,9 @@ public class PanelController {
 	}
 
 	// METODO GUARDAR PRODUCTOS POST
-	@PostMapping("/producto/{id}")
-	public String guardarEdicion(
-	        @PathVariable("id") Long id,
+	@PostMapping({ "/producto", "/producto/{id}" })
+	public String guardarProducto(
+	        @PathVariable(name = "id", required = false) Long id,
 	        @ModelAttribute("producto") Producto producto,
 	        BindingResult errores,
 	        @RequestParam(name = "foto", required = false)
@@ -98,27 +103,22 @@ public class PanelController {
 	        Model model,
 	        RedirectAttributes avisos) {
 
-	    boolean agregaFotos = fotosGaleria != null
-	            && fotosGaleria.stream()
-	                    .anyMatch(archivo -> !archivo.isEmpty());
-
-	    boolean eliminaFotos = eliminarImagenes != null
-	            && !eliminarImagenes.isEmpty();
-
-	    if (agregaFotos || eliminaFotos) {
-	        errores.reject(
-	                "producto.galeria",
-	                "Conserva las fotografías adicionales sin adjuntar "
-	                + "ni quitar imágenes de la galería.");
-	    }
-
 	    if (!errores.hasErrors()) {
 	        try {
-	            productoService.actualizar(id, producto, foto);
+	            if (id == null) {
+	                productoService.guardar(
+	                        producto, foto, fotosGaleria);
+	            } else {
+	                productoService.actualizar(
+	                        id, producto, foto,
+	                        fotosGaleria, eliminarImagenes);
+	            }
 
 	            avisos.addFlashAttribute(
 	                    "exito",
-	                    "Perfume actualizado correctamente.");
+	                    id == null
+	                            ? "Perfume registrado correctamente."
+	                            : "Perfume actualizado correctamente.");
 
 	            return "redirect:/producto";
 
@@ -129,12 +129,12 @@ public class PanelController {
 	                | OptimisticLockException ex) {
 	            errores.reject(
 	                    "producto.version",
-	                    "Otro usuario modificó este perfume. "
-	                    + "Recarga la página antes de editarlo.");
+	                    "El perfume fue modificado. Recarga la página.");
 	        }
 	    }
 
-	    Producto actual = catalogo.buscar(id);
+	    Producto actual = id == null ? producto : catalogo.buscar(id);
+
 	    return mostrarFormulario(id, producto, actual, model);
 	}
 
@@ -150,6 +150,13 @@ public class PanelController {
 		m.addAttribute("totalProductos", todos.size());
 		m.addAttribute("productosConStock", stock);
 		m.addAttribute("q", q);
+		
+		m.addAttribute("marcaList", catalogo.marcas());
+
+		if (!m.containsAttribute("marca")) {
+		    m.addAttribute("marca", new Marca());
+		}
+		
 		return "producto/index";
 	}
 	//
@@ -203,8 +210,8 @@ public class PanelController {
 
 	@GetMapping("/promocion")
 	public String promociones(Model m) {
-		m.addAttribute("packs", catalogo.packs());
-		return "promocion/index";
+	    m.addAttribute("packs", promocionService.listar());
+	    return "promocion/index";
 	}
 	//
 
@@ -218,19 +225,136 @@ public class PanelController {
 	public String editarPromocion(@PathVariable Long id, Model m) {
 		return promocion(id, m);
 	}
-	//
+	
+	//METODO PROMOCION
+	private String promocion(Long id, Model model) {
 
-	private String promocion(Long id, Model m) {
-		Pack p = id == null ? new Pack() : catalogo.buscarPack(id);
-		if (p == null)
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-		m.addAttribute("pack", p);
-		m.addAttribute("idEdicion", id);
-		m.addAttribute("productos", catalogo.listar("", "", "", "", "featured", false));
-		m.addAttribute("tamanos", new int[] { 3, 5, 10 });
-		return "promocion/formulario";
+	    Pack pack = id == null
+	            ? new Pack() : catalogo.buscarPack(id);
+
+	    return mostrarPromocion(id, pack, model);
 	}
-	//
+
+	private String mostrarPromocion(Long id, Pack pack, Model model) {
+
+	    if (pack == null) {
+	        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+	    }
+
+	    model.addAttribute("pack", pack);
+	    model.addAttribute("idEdicion", id);
+	    model.addAttribute("productos",
+	            catalogo.listar("", "", "", "", "featured", false));
+	    model.addAttribute("tamanos", new int[] { 3, 5, 10 });
+
+	    return "promocion/formulario";
+	}
+	//METODO PARA CONFIGURAR EL FORMULARIO DE PROMOCION
+	@InitBinder("pack")
+	public void configurarFormularioPromocion(WebDataBinder binder) {
+	    binder.setAllowedFields(
+	            "nombre", "descripcion", "etiqueta", "version");
+	}
+
+	@PostMapping({ "/promocion", "/promocion/{id}" })
+	public String guardarPromocion(
+	        @PathVariable(name = "id", required = false) Long id,
+	        @ModelAttribute("pack") Pack pack,
+	        BindingResult errores,
+	        @RequestParam(name = "productoIds", required = false)
+	        List<Long> productoIds,
+	        @RequestParam(name = "ml", required = false)
+	        List<Integer> ml,
+	        @RequestParam(name = "cantidades", required = false)
+	        List<Integer> cantidades,
+	        Model model,
+	        RedirectAttributes avisos) {
+
+	    if (!errores.hasErrors()) {
+	        try {
+	            promocionService.guardar(
+	                    id, pack, productoIds, ml, cantidades);
+
+	            avisos.addFlashAttribute(
+	                    "exito", "Promoción guardada correctamente.");
+
+	            return "redirect:/promocion";
+
+	        } catch (IllegalArgumentException ex) {
+	            errores.reject("promocion.datos", ex.getMessage());
+
+	        } catch (OptimisticLockingFailureException
+	                | OptimisticLockException ex) {
+	            errores.reject(
+	                    "promocion.version",
+	                    "La promoción fue modificada. Recarga la página.");
+	        }
+	    }
+
+	    recuperarDetalles(pack, productoIds, ml, cantidades);
+
+	    return mostrarPromocion(id, pack, model);
+	}
+	// Para recuperar los datos de presentaciones
+	private void recuperarDetalles(
+	        Pack pack,
+	        List<Long> productoIds,
+	        List<Integer> ml,
+	        List<Integer> cantidades) {
+
+	    pack.getDetalles().clear();
+
+	    for (int i = 0; i < 3; i++) {
+
+	        PackDetalle detalle = new PackDetalle();
+
+	        detalle.setProductoId(
+	                productoIds != null && i < productoIds.size()
+	                        ? productoIds.get(i) : null);
+
+	        detalle.setMl(
+	                ml != null && i < ml.size() ? ml.get(i) : 3);
+
+	        detalle.setCantidad(
+	                cantidades != null && i < cantidades.size()
+	                        ? cantidades.get(i) : 1);
+
+	        pack.getDetalles().add(detalle);
+	    }
+	}
+	
+	//POST PARA RETIRAR Y RASTAURAR LAS PROMOCIONES
+	@PostMapping("/promocion/{accion:delete|restore}/{id}")
+	public String cambiarEstadoPromocion(
+	        @PathVariable("accion") String accion,
+	        @PathVariable("id") Long id,
+	        @RequestParam("version") Integer version,
+	        RedirectAttributes avisos) {
+
+	    boolean activar = "restore".equals(accion);
+
+	    try {
+	        promocionService.cambiarEstado(id, version, activar);
+
+	        avisos.addFlashAttribute(
+	                "exito",
+	                activar
+	                        ? "Promoción restaurada correctamente."
+	                        : "Promoción retirada correctamente.");
+
+	    } catch (IllegalArgumentException ex) {
+	        avisos.addFlashAttribute("error", ex.getMessage());
+
+	    } catch (OptimisticLockingFailureException
+	            | OptimisticLockException ex) {
+	        avisos.addFlashAttribute(
+	                "error",
+	                "La promoción fue modificada. Recarga la página.");
+	    }
+
+	    return "redirect:/promocion";
+	}
+	
 
 	@GetMapping("/pedidos")
 	public String pedidos(Model model) {

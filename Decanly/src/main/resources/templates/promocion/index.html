@@ -1,57 +1,76 @@
 <!doctype html>
 <html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
-  <head th:replace="~{fragments/layout :: head('Promociones y packs')}">
-    <title>Promociones y packs · Decanly</title>
-  </head>
-  <body data-route="cuenta" data-page="promocion/index">
-    <div th:replace="~{fragments/layout :: cabecera}"></div>
-    <div
-      id="connection-status"
-      class="connection-status"
-      role="status"
-      hidden
-    ></div>
-    <main id="app" tabindex="-1">
-      <section class="admin-shell">
-        <aside th:replace="~{fragments/admin :: sidebar}"></aside>
-        <div class="admin-main">
-          <div class="admin-heading">
-            <div>
-              <span class="eyebrow">Promociones de MySQL</span>
-              <h1>Tu selección de packs.</h1>
-              <p>Consulta los packs publicados y sus perfumes.</p>
-            </div>
-          </div>
-          <a class="btn" th:href="@{/promocion/new}">Nueva promoción +</a>
-          <div class="admin-pack-grid">
-            <article class="admin-pack-card" th:each="p : ${packs}">
-              <div class="admin-pack-art">
-                <img
-                  th:each="detalle : ${p.detalles}"
-                  th:src="@{/imagenes/{id}(id=${detalle.producto.imagen.id})}"
-                  th:alt="${detalle.producto.nombre}"
-                />
-              </div>
-              <div class="admin-pack-info">
-                <span class="brand" th:text="${p.etiqueta}"></span>
-                <h3 th:text="${p.nombre}"></h3>
-                <p th:text="${p.descripcion}"></p>
-                <ul>
-                  <li
-                    th:each="detalle : ${p.detalles}"
-                    th:text="${detalle.producto.nombre}+' · '+${detalle.cantidad}+' × '+${detalle.ml}+' ml'"
-                  ></li>
-                </ul><a class="btn light" th:href="@{/promocion/edit/{id}(id=${p.idPack})}">Editar</a>
-<form th:action="@{/promocion/delete/{id}(id=${p.idPack})}" method="post"><button class="text-link">Retirar</button></form>
-              </div>
-            </article>
-          </div>
-          <p th:if="${#lists.isEmpty(packs)}">
-            No hay packs publicados con todos sus perfumes activos.
-          </p>
-        </div>
-      </section>
-    </main>
-    <div th:replace="~{fragments/layout :: pie}"></div>
-  </body>
+
+<head th:replace="~{fragments/layout :: head('Promociones y packs')}">
+	<title>Promociones y packs · Decanly</title>
+</head>
+
+<body data-route="cuenta" data-page="promocion/index">
+	<div th:replace="~{fragments/layout :: cabecera}"></div>
+	<div id="connection-status" class="connection-status" role="status" hidden></div>
+	<main id="app" tabindex="-1">
+		<section class="admin-shell">
+			<aside th:replace="~{fragments/admin :: sidebar}"></aside>
+			<div class="admin-main">
+				<div class="admin-heading">
+					<div>
+						<span class="eyebrow">Panel de administración</span>
+						<h1>Tu selección de packs.</h1>
+						<p>Gestiona las promociones y sus perfumes.</p>
+					</div>
+
+					<a class="btn" th:href="@{/promocion/new}">
+						Nueva promoción +
+					</a>
+				</div>
+				<p class="notice" role="status" th:if="${exito != null}" th:text="${exito}">
+				</p>
+
+				<p class="notice" role="alert" th:if="${error != null}" th:text="${error}">
+				</p>
+				<div class="admin-pack-grid">
+					<article class="admin-pack-card" th:each="p : ${packs}">
+						<div class="admin-pack-art">
+							<img th:each="detalle : ${p.detalles}"
+								th:src="@{/imagenes/{id}(id=${detalle.producto.imagen.id})}"
+								th:alt="${detalle.producto.nombre}" />
+						</div>
+						<div class="admin-pack-info">
+							<span class="brand" th:text="${p.etiqueta}"></span>
+							<h3 th:text="${p.nombre}"></h3>
+							<p th:text="${p.descripcion}"></p>
+							<ul>
+								<li th:each="detalle : ${p.detalles}"
+									th:text="${detalle.producto.nombre} + ' · ' + ${detalle.cantidad} + ' × ' + ${detalle.ml} + ' ml'">
+								</li>
+							</ul>
+
+							<span class="status-pill" th:classappend="${!p.activo} ? 'inactive' : ''"
+								th:text="${p.activo} ? 'Activo' : 'Retirado'">
+							</span>
+
+							<a class="btn light" th:href="@{/promocion/edit/{id}(id=${p.idPack})}">
+								Editar
+							</a>
+							<form th:action="${p.activo}
+				        ? @{/promocion/delete/{id}(id=${p.idPack})}
+				        : @{/promocion/restore/{id}(id=${p.idPack})}" method="post">
+
+								<input type="hidden" name="version" th:value="${p.version}" />
+
+								<button class="text-link" type="submit" th:text="${p.activo} ? 'Retirar' : 'Restaurar'">
+								</button>
+							</form>
+						</div>
+					</article>
+				</div>
+				<p th:if="${#lists.isEmpty(packs)}">
+					No hay promociones registradas.
+				</p>
+			</div>
+		</section>
+	</main>
+	<div th:replace="~{fragments/layout :: pie}"></div>
+</body>
+
 </html>

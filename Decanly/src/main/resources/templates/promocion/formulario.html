@@ -1,22 +1,61 @@
-<!doctype html><html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Promoción')}"><title>Promoción</title></head><body>
-<div th:replace="~{fragments/layout :: cabecera}"></div><main id="app" tabindex="-1">
-<section class="admin-shell"><aside th:replace="~{fragments/admin :: sidebar}"></aside><div class="admin-main">
+<!doctype html>
+<html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
 
-<section class="panel editor-page"><h2 th:text="${idEdicion == null} ? 'Nueva promoción' : 'Editar promoción'"></h2>
-<form class="form-grid" th:object="${pack}" th:action="${idEdicion == null} ? @{/promocion} : @{/promocion/{id}(id=${idEdicion})}" method="post">
-  <label class="wide">Título<input class="field" th:field="*{nombre}" maxlength="60" required/></label>
-  <label class="wide">Descripción<input class="field" th:field="*{descripcion}" maxlength="180" required/></label>
-  <label>Etiqueta<input class="field" th:field="*{etiqueta}" maxlength="40"/></label><input type="hidden" th:field="*{version}"/>
-  <fieldset class="wide variant-fields"><legend>Perfumes del pack</legend>
-    <div class="variant-inputs" th:each="i : ${#numbers.sequence(0,2)}">
-      <label>Perfume<select class="field" name="productoIds" required><option value="">Elegir</option>
-        <option th:each="p : ${productos}" th:value="${p.id}" th:text="${p.nombre}" th:selected="${i < #lists.size(pack.detalles) and pack.detalles[i].productoId == p.id}"></option>
-      </select></label><label>Tamaño<select class="field" name="ml">
-        <option th:each="v : ${tamanos}" th:value="${v}" th:text="${v}+' ml'" th:selected="${i < #lists.size(pack.detalles) and pack.detalles[i].ml == v}"></option>
-      </select></label><label>Cantidad<input class="field" name="cantidades" type="number" min="1" max="10" th:value="${i < #lists.size(pack.detalles)} ? ${pack.detalles[i].cantidad} : 1" required/></label>
-    </div>
-  </fieldset><div class="form-buttons wide"><button class="btn">Guardar promoción</button><a th:href="@{/promocion}">Cancelar</a></div>
-</form></section>
-</div></section>
-</main><div th:replace="~{fragments/layout :: pie}"></div></body></html>
+<head th:replace="~{fragments/layout :: head('Promoción')}">
+	<title>Promoción</title>
+</head>
+
+<body>
+	<div th:replace="~{fragments/layout :: cabecera}"></div>
+	<main id="app" tabindex="-1">
+		<section class="admin-shell">
+			<aside th:replace="~{fragments/admin :: sidebar}"></aside>
+			<div class="admin-main">
+
+				<section class="panel editor-page">
+					<h2 th:text="${idEdicion == null} ? 'Nueva promoción' : 'Editar promoción'"></h2>
+					<form class="form-grid" th:object="${pack}"
+						th:action="${idEdicion == null} ? @{/promocion} : @{/promocion/{id}(id=${idEdicion})}"
+						method="post">
+
+						<div class="form-feedback error wide" role="alert" th:if="${#fields.hasErrors('*')}">
+
+							<p th:each="error : ${#fields.errors('*')}" th:text="${error}">
+							</p>
+						</div>
+						<label class="wide">Título<input class="field" th:field="*{nombre}" maxlength="60"
+								required /></label>
+						<label class="wide">Descripción<input class="field" th:field="*{descripcion}" maxlength="180"
+								required /></label>
+						<label>Etiqueta<input class="field" th:field="*{etiqueta}" maxlength="40" /></label><input
+							type="hidden" th:field="*{version}" />
+						<fieldset class="wide variant-fields">
+							<legend>Perfumes del pack</legend>
+							<div class="variant-inputs" th:each="i : ${#numbers.sequence(0,2)}">
+								<label>Perfume<select class="field" name="productoIds" required>
+										<option value="">Elegir</option>
+										<option th:each="p : ${productos}" th:value="${p.id}" th:text="${p.nombre}"
+											th:selected="${i < #lists.size(pack.detalles) and pack.detalles[i].productoId == p.id}">
+										</option>
+									</select></label><label>Tamaño<select class="field" name="ml">
+										<option th:each="v : ${tamanos}" th:value="${v}" th:text="${v}+' ml'"
+											th:selected="${i < #lists.size(pack.detalles) and pack.detalles[i].ml == v}">
+										</option>
+									</select></label><label>Cantidad<input class="field" name="cantidades" type="number"
+										min="1" max="10"
+										th:value="${i < #lists.size(pack.detalles)} ? ${pack.detalles[i].cantidad} : 1"
+										required /></label>
+							</div>
+						</fieldset>
+						<div class="form-buttons wide"><button class="btn">Guardar promoción</button><a
+								th:href="@{/promocion}">Cancelar</a></div>
+
+					</form>
+				</section>
+			</div>
+		</section>
+	</main>
+	<div th:replace="~{fragments/layout :: pie}"></div>
+</body>
+
+</html>

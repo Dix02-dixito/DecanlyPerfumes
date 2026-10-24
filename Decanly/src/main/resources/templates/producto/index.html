@@ -25,6 +25,7 @@
               </p>
             </div>
             <a class="btn" th:href="@{/producto/new}">Nuevo perfume +</a>
+			<a class="btn light" th:href="@{/marcas}">Agregar marca +</a>
           </div>
 		  
           <p
@@ -140,16 +141,13 @@
                       </form>
                       <form
                         th:if="${p.conStock}"
-                        th:action="@{/producto/agotado/{id}(id=${p.id})}"
                         method="post"
                       >
                         <input
                           type="hidden"
                           name="version"
                           th:value="${p.version}"
-                        /><button class="text-link" type="submit">
-                          Marcar agotado
-                        </button>
+                        />
                       </form>
                     </div>
                   </td>
@@ -164,5 +162,6 @@
       </section>
     </main>
     <div th:replace="~{fragments/layout :: pie}"></div>
+	<div th:replace="~{marca/modal :: modal}"></div>
   </body>
 </html>

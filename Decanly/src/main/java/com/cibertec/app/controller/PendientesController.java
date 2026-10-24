@@ -9,10 +9,8 @@ import jakarta.servlet.http.HttpServletResponse;
 // 501 hace explícito que NO se guardó ni se autenticó nada.
 @Controller
 public class PendientesController {
-	@PostMapping({ "/producto",
+	@PostMapping({
 			"/producto/agotado/{id}",
-
-			"/promocion", "/promocion/{id}", "/promocion/delete/{id}",
 
 			"/carrito/quitar", "/carrito/cantidad",
 
