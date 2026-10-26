@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 import java.util.List;
 import java.math.BigDecimal;
+import com.cibertec.app.service.PoliticaEnvio;
 import java.util.ArrayList;
 
 @Controller
@@ -43,7 +44,7 @@ public class TiendaController {
 	@GetMapping("/")
 	public String inicio(Model m) {
 		List<Producto> p = catalogo.listar("", "", "", "", "featured", true);
-		m.addAttribute("productos", p.subList(0, Math.min(8, p.size())));
+		m.addAttribute("productos", p.subList(0, Math.min(12, p.size())));
 		m.addAttribute("packs", catalogo.packs());
 		return "inicio/index";
 	}
@@ -103,20 +104,8 @@ public class TiendaController {
 			subtotal = subtotal.add(item.getSubtotal());
 		}
 
-		BigDecimal envio;
-		BigDecimal faltante;
-
-		if (subtotal.compareTo(new BigDecimal("200")) >= 0) {
-
-			envio = BigDecimal.ZERO;
-			faltante = BigDecimal.ZERO;
-
-		} else {
-
-			envio = new BigDecimal("15");
-
-			faltante = new BigDecimal("200").subtract(subtotal);
-		}
+		BigDecimal envio = PoliticaEnvio.importe(subtotal);
+		BigDecimal faltante = PoliticaEnvio.faltante(subtotal);
 
 		BigDecimal total = subtotal.add(envio);
 

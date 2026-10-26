@@ -127,35 +127,7 @@
 
 							</div>
 
-							<div class="summary-row">
-
-								<span>Envío</span>
-
-								<span th:if="${envio == 0}">
-									GRATIS
-								</span>
-
-								<span th:unless="${envio == 0}" th:text="'S/ ' + ${envio}">
-								</span>
-
-							</div>
-
-							<p class="hint" th:if="${envio != 0}">
-
-								Te faltan
-
-								<strong th:text="${faltante}">
-								</strong>
-
-								soles para obtener envío gratis.
-
-							</p>
-
-							<p class="hint" th:if="${envio == 0}">
-
-								🎉 Tu pedido tiene envío gratis.
-
-							</p>
+							<p class="hint">Envío gratis a partir de S/ 149.</p>
 
 							<div class="summary-row total">
 

@@ -84,7 +84,7 @@
             </a>
           </div>
         </div>
-        <div class="product-rail" id="best-sellers"><th:block th:each="p : ${productos}"><article th:replace="~{fragments/tienda :: tarjeta(${p},'carrito')}"></article></th:block></div>
+        <div class="grid home-products" id="best-sellers"><th:block th:each="p : ${productos}"><article th:replace="~{fragments/tienda :: tarjeta(${p},'carrito')}"></article></th:block></div>
       </section>
       <section class="section benefit-grid" aria-label="Por qué elegir un decant">
         <article>
@@ -233,12 +233,7 @@
               <path d="M4 12h16m-6-6 6 6-6 6"></path></svg></a>
         </div>
         <div class="promo-grid"><th:block th:each="p : ${packs}"><article th:replace="~{fragments/tienda :: promocion(${p})}"></article></th:block></div>
-        <div class="custom-pack-link">
-          <span>¿Prefieres elegir tú? Mezcla tus perfumes y tamaños
-            favoritos.</span><a class="text-link" href="/packs" th:href="@{/packs}">Arma tu pack
-            <svg class="ui-icon" viewbox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M4 12h16m-6-6 6 6-6 6"></path></svg></a>
-        </div>
+
       </section>
       <section class="section service-grid" aria-label="Atención y entregas">
         <article>

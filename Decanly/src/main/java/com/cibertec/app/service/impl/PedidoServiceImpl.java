@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 import com.cibertec.app.entity.Pedido;
 import com.cibertec.app.repository.PedidoRepository;
 import com.cibertec.app.service.PedidoService;
+import com.cibertec.app.service.PoliticaEnvio;
 
 @Service
 @RequiredArgsConstructor
@@ -127,9 +128,7 @@ public class PedidoServiceImpl implements PedidoService {
 	                presentacion.getStock() - item.getCantidad());
 	    }
 
-	    BigDecimal envio = subtotal.compareTo(new BigDecimal("200")) >= 0
-	            ? BigDecimal.ZERO
-	            : new BigDecimal("15");
+	    BigDecimal envio = PoliticaEnvio.importe(subtotal);
 
 	    BigDecimal total = subtotal.add(envio);
 
