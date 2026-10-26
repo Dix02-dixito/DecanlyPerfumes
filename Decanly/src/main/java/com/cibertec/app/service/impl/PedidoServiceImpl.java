@@ -127,11 +127,8 @@ public class PedidoServiceImpl implements PedidoService {
 	                presentacion.getStock() - item.getCantidad());
 	    }
 
-	    BigDecimal envio = subtotal.compareTo(new BigDecimal("200")) >= 0
-	            ? BigDecimal.ZERO
-	            : new BigDecimal("15");
-
-	    BigDecimal total = subtotal.add(envio);
+	    // Solo se registra el importe de productos; el envío se coordina con el vendedor.
+	    BigDecimal total = subtotal;
 
 	    if (total.compareTo(new BigDecimal("99999999.99")) > 0) {
 	        throw new IllegalArgumentException(

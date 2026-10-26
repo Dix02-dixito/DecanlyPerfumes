@@ -43,7 +43,7 @@ public class TiendaController {
 	@GetMapping("/")
 	public String inicio(Model m) {
 		List<Producto> p = catalogo.listar("", "", "", "", "featured", true);
-		m.addAttribute("productos", p.subList(0, Math.min(8, p.size())));
+		m.addAttribute("productos", p.subList(0, Math.min(12, p.size())));
 		m.addAttribute("packs", catalogo.packs());
 		return "inicio/index";
 	}
@@ -103,28 +103,12 @@ public class TiendaController {
 			subtotal = subtotal.add(item.getSubtotal());
 		}
 
-		BigDecimal envio;
-		BigDecimal faltante;
-
-		if (subtotal.compareTo(new BigDecimal("200")) >= 0) {
-
-			envio = BigDecimal.ZERO;
-			faltante = BigDecimal.ZERO;
-
-		} else {
-
-			envio = new BigDecimal("15");
-
-			faltante = new BigDecimal("200").subtract(subtotal);
-		}
-
-		BigDecimal total = subtotal.add(envio);
+		// El envío se coordina por WhatsApp y no se añade al importe de productos.
+		BigDecimal total = subtotal;
 
 		model.addAttribute("carrito", carrito);
 		model.addAttribute("subtotal", subtotal);
-		model.addAttribute("envio", envio);
 		model.addAttribute("total", total);
-		model.addAttribute("faltante", faltante);
 
 		return "carrito/index";
 	}

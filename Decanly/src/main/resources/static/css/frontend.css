@@ -638,3 +638,65 @@ form[aria-busy="true"] button[type="submit"] {
     margin: 0;
     white-space: nowrap;
 }
+
+/* Tarjetas compactas: el precio pertenece a la presentación elegida en el POST. */
+.card-info > .brand {
+    min-height: 0;
+    margin-bottom: 4px;
+}
+.card h3,
+.pack-catalog .card h3 {
+    min-height: 0;
+    margin-bottom: 6px;
+    overflow-wrap: anywhere;
+}
+.card form .card-price {
+    display: none;
+    min-height: 24px;
+}
+.card form:has(input[name="ml"][value="3"]:checked) .price-3,
+.card form:has(input[name="ml"][value="5"]:checked) .price-5,
+.card form:has(input[name="ml"][value="10"]:checked) .price-10 {
+    display: flex;
+}
+.card .size-options {
+    margin: 6px 0;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+.card .native-sizes label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    min-height: 44px;
+}
+.card .native-sizes span {
+    width: 100%;
+    padding: 7px 5px;
+    font-weight: 600;
+}
+.card .card-add {
+    min-height: 44px;
+    letter-spacing: 1px;
+}
+.home-products {
+    row-gap: 28px;
+}
+.site-header .logo img,
+.footer-brand img {
+    height: auto;
+    object-fit: contain;
+    max-width: 100%;
+}
+@media (max-width: 760px) {
+    .home-products {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 24px 14px;
+    }
+    .card .card-add {
+        font-size: 9px;
+        letter-spacing: .4px;
+        padding-inline: 4px;
+    }
+}

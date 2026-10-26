@@ -15,10 +15,10 @@
 			<form th:action="${destino == 'pack'} ? @{/packs/agregar} : @{/carrito/agregar}" method="post">
 				<input type="hidden" name="productoId" th:value="${p.id}" />
 				<input type="hidden" name="cantidad" value="1" />
-				<div class="card-price"><del th:if="${p.descuento > 0}"
-						th:text="'Desde S/ '+${#numbers.formatDecimal(p.presentaciones[0].precio,1,2,'POINT')}"></del>
-					<strong
-						th:text="'Desde S/ '+${#numbers.formatDecimal(p.presentaciones[0].precioFinal,1,2,'POINT')}"></strong>
+				<div class="card-price" th:each="v : ${p.presentaciones}" th:classappend="'price-' + ${v.ml}">
+					<del th:if="${p.descuento > 0}"
+						th:text="'S/ '+${#numbers.formatDecimal(v.precio,1,2,'POINT')}"></del>
+					<strong th:text="'S/ '+${#numbers.formatDecimal(v.precioFinal,1,2,'POINT')}"></strong>
 					<small>PEN</small>
 				</div>
 				<div class="size-options native-sizes">

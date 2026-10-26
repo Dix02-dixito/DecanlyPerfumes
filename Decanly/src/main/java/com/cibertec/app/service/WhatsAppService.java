@@ -45,8 +45,8 @@ public class WhatsAppService {
                  Tu pedido
                 %s
 
-                 Total: S/ %s
-                 Envío: Delivery (Lima)
+                 Total de productos: S/ %s
+                 Envío: por coordinar con el vendedor por WhatsApp.
 
                  Dirección: %s
 
