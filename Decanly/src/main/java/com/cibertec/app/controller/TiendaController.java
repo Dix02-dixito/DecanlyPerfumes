@@ -12,7 +12,6 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 import java.util.List;
 import java.math.BigDecimal;
-import com.cibertec.app.service.PoliticaEnvio;
 import java.util.ArrayList;
 
 @Controller
@@ -104,16 +103,12 @@ public class TiendaController {
 			subtotal = subtotal.add(item.getSubtotal());
 		}
 
-		BigDecimal envio = PoliticaEnvio.importe(subtotal);
-		BigDecimal faltante = PoliticaEnvio.faltante(subtotal);
-
-		BigDecimal total = subtotal.add(envio);
+		// El envío se coordina por WhatsApp y no se añade al importe de productos.
+		BigDecimal total = subtotal;
 
 		model.addAttribute("carrito", carrito);
 		model.addAttribute("subtotal", subtotal);
-		model.addAttribute("envio", envio);
 		model.addAttribute("total", total);
-		model.addAttribute("faltante", faltante);
 
 		return "carrito/index";
 	}

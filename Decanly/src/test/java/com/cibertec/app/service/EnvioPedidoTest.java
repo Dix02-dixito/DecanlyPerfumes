@@ -20,8 +20,8 @@ import com.cibertec.app.validation.PedidoValidador;
 
 class EnvioPedidoTest {
     @ParameterizedTest
-    @CsvSource({"148.99,163.99,0.01", "149.00,149.00,0", "149.01,149.01,0", "200.00,200.00,0"})
-    void carritoYRegistroCoincidenEnElUmbral(String precio, String total, String faltante) {
+    @CsvSource({"15.00", "148.99", "149.00", "149.01", "200.00"})
+    void carritoYRegistroNoAgreganTarifaDeEnvio(String precio) {
         var producto = new Producto();
         producto.setId(1L);
         producto.setNombre("Perfume de prueba");
@@ -41,8 +41,7 @@ class EnvioPedidoTest {
         sesion.setAttribute("carrito", carrito);
         var modelo = new ExtendedModelMap();
         assertEquals("carrito/index", new TiendaController().carrito(sesion, modelo));
-        assertEquals(0, new BigDecimal(total).compareTo((BigDecimal) modelo.get("total")));
-        assertEquals(0, new BigDecimal(faltante).compareTo((BigDecimal) modelo.get("faltante")));
+        assertEquals(0, new BigDecimal(precio).compareTo((BigDecimal) modelo.get("total")));
 
         var pedidos = mock(PedidoRepository.class);
         var productos = mock(ProductoRepository.class);
@@ -53,7 +52,7 @@ class EnvioPedidoTest {
         when(presentaciones.bloquearPorProductoYml(1L, 5)).thenReturn(Optional.of(presentacion));
         when(pedidos.save(any(Pedido.class))).thenAnswer(invocacion -> {
             Pedido pedido = invocacion.getArgument(0);
-            assertEquals(0, new BigDecimal(total).compareTo(pedido.getTotalPedido()));
+            assertEquals(0, new BigDecimal(precio).compareTo(pedido.getTotalPedido()));
             assertEquals(5, pedido.getDetalles().get(0).getMl());
             assertEquals(0, new BigDecimal(precio).compareTo(pedido.getDetalles().get(0).getPrecio()));
             pedido.setId(1L);
