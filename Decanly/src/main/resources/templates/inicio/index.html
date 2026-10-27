@@ -62,7 +62,11 @@
           <span>EL UNIVERSO DE TUS FAVORITOS</span>
         </div>
         <div class="brand-rail" tabindex="0" aria-label="Explorar marcas">
-          <a href="/catalogo?marca=Valentino" data-brand="Valentino" aria-label="Ver perfumes de Valentino" th:href="@{/catalogo?marca=Valentino}"><img src="/assets/brands/valentino.svg" alt="Valentino" loading="lazy" width="150" height="64" th:src="@{/assets/brands/valentino.svg}"></a><a href="/catalogo?marca=Yves%20Saint%20Laurent" data-brand="Yves Saint Laurent" aria-label="Ver perfumes de Yves Saint Laurent" th:href="@{/catalogo?marca=Yves%20Saint%20Laurent}"><img src="/assets/brands/ysl.svg" alt="Yves Saint Laurent" loading="lazy" width="150" height="64" th:src="@{/assets/brands/ysl.svg}"></a><a href="/catalogo?marca=Versace" data-brand="Versace" aria-label="Ver perfumes de Versace" th:href="@{/catalogo?marca=Versace}"><img src="/assets/brands/versace.svg" alt="Versace" loading="lazy" width="150" height="64" th:src="@{/assets/brands/versace.svg}"></a><a href="/catalogo?marca=Jean%20Paul%20Gaultier" data-brand="Jean Paul Gaultier" aria-label="Ver perfumes de Jean Paul Gaultier" th:href="@{/catalogo?marca=Jean%20Paul%20Gaultier}"><img src="/assets/brands/jean-paul-gaultier.svg" alt="Jean Paul Gaultier" loading="lazy" width="150" height="64" th:src="@{/assets/brands/jean-paul-gaultier.svg}"></a><a href="/catalogo?marca=Dior" data-brand="Dior" aria-label="Ver perfumes de Dior" th:href="@{/catalogo?marca=Dior}"><img src="/assets/brands/dior.svg" alt="Dior" loading="lazy" width="150" height="64" th:src="@{/assets/brands/dior.svg}"></a><a href="/catalogo?marca=Valentino" data-brand="Valentino" aria-label="Ver perfumes de Valentino" th:href="@{/catalogo?marca=Valentino}"><img src="/assets/brands/valentino.svg" alt="Valentino" loading="lazy" width="150" height="64" th:src="@{/assets/brands/valentino.svg}"></a><a href="/catalogo?marca=Yves%20Saint%20Laurent" data-brand="Yves Saint Laurent" aria-label="Ver perfumes de Yves Saint Laurent" th:href="@{/catalogo?marca=Yves%20Saint%20Laurent}"><img src="/assets/brands/ysl.svg" alt="Yves Saint Laurent" loading="lazy" width="150" height="64" th:src="@{/assets/brands/ysl.svg}"></a><a href="/catalogo?marca=Versace" data-brand="Versace" aria-label="Ver perfumes de Versace" th:href="@{/catalogo?marca=Versace}"><img src="/assets/brands/versace.svg" alt="Versace" loading="lazy" width="150" height="64" th:src="@{/assets/brands/versace.svg}"></a><a href="/catalogo?marca=Jean%20Paul%20Gaultier" data-brand="Jean Paul Gaultier" aria-label="Ver perfumes de Jean Paul Gaultier" th:href="@{/catalogo?marca=Jean%20Paul%20Gaultier}"><img src="/assets/brands/jean-paul-gaultier.svg" alt="Jean Paul Gaultier" loading="lazy" width="150" height="64" th:src="@{/assets/brands/jean-paul-gaultier.svg}"></a><a href="/catalogo?marca=Dior" data-brand="Dior" aria-label="Ver perfumes de Dior" th:href="@{/catalogo?marca=Dior}"><img src="/assets/brands/dior.svg" alt="Dior" loading="lazy" width="150" height="64" th:src="@{/assets/brands/dior.svg}"></a>
+          <a th:href="@{/catalogo(marca='Jean Paul Gaultier')}" aria-label="Ver perfumes de Jean Paul Gaultier"><img th:src="@{/assets/brands/jean-paul-gaultier.svg}" alt="Jean Paul Gaultier" width="150" height="50" loading="lazy"></a>
+          <a th:href="@{/catalogo(marca='Valentino')}" aria-label="Ver perfumes de Valentino"><img th:src="@{/assets/brands/valentino.svg}" alt="Valentino" width="150" height="50" loading="lazy"></a>
+          <a th:href="@{/catalogo(marca='Dior')}" aria-label="Ver perfumes de Dior"><img th:src="@{/assets/brands/dior.svg}" alt="Dior" width="150" height="50" loading="lazy"></a>
+          <a th:href="@{/catalogo(marca='Versace')}" aria-label="Ver perfumes de Versace"><img th:src="@{/assets/brands/versace.svg}" alt="Versace" width="150" height="50" loading="lazy"></a>
+          <a th:href="@{/catalogo(marca='Yves Saint Laurent')}" aria-label="Ver perfumes de Yves Saint Laurent"><img th:src="@{/assets/brands/ysl.svg}" alt="Yves Saint Laurent" width="150" height="50" loading="lazy"></a>
         </div>
       </section>
       <section class="section best-section">
@@ -128,75 +132,31 @@
             <h2>¿A qué quieres oler hoy?</h2>
           </div>
         </div>
-        <div class="category-grid desktop-categories">
-          <a class="category-card" href="/catalogo?estilo=Verano" data-category="Verano" th:href="@{/catalogo?estilo=Verano}"><svg class="reference-photo" viewbox="118 329 245 277" preserveaspectratio="xMidYMid slice" role="img" aria-label="Inspiración Verano">
-              <image href="/assets/references/categories.png" width="1300" height="725" th:attr="href=@{/assets/references/categories.png}"></image>
+        <div class="category-grid category-scenes">
+          <a class="category-card" th:href="@{/catalogo(estilo='Verano')}">
+            <svg class="reference-photo" viewBox="0 0 384 1024" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Inspiración Verano">
+              <image th:attr="href=@{/assets/category-scenes.png}" width="1536" height="1024" />
             </svg>
-            <div>
-              <h3>Verano</h3>
-              <span>DESCUBRIR
-                <svg class="ui-icon" viewbox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <path d="M4 12h16m-6-6 6 6-6 6"></path></svg></span>
-</div></a><a class="category-card" href="/catalogo?estilo=Invierno" data-category="Invierno" th:href="@{/catalogo?estilo=Invierno}"><svg class="reference-photo" viewbox="389 329 245 277" preserveaspectratio="xMidYMid slice" role="img" aria-label="Inspiración Invierno">
-              <image href="/assets/references/categories.png" width="1300" height="725" th:attr="href=@{/assets/references/categories.png}"></image>
+            <div><h3>Verano</h3><span>DESCUBRIR <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></span></div>
+          </a>
+          <a class="category-card" th:href="@{/catalogo(estilo='Invierno')}">
+            <svg class="reference-photo" viewBox="384 0 384 1024" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Inspiración Invierno">
+              <image th:attr="href=@{/assets/category-scenes.png}" width="1536" height="1024" />
             </svg>
-            <div>
-              <h3>Invierno</h3>
-              <span>DESCUBRIR
-                <svg class="ui-icon" viewbox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <path d="M4 12h16m-6-6 6 6-6 6"></path></svg></span>
-</div></a><a class="category-card" href="/catalogo?estilo=Dulce" data-category="Dulce" th:href="@{/catalogo?estilo=Dulce}"><svg class="reference-photo" viewbox="660 329 245 277" preserveaspectratio="xMidYMid slice" role="img" aria-label="Inspiración Dulce">
-              <image href="/assets/references/categories.png" width="1300" height="725" th:attr="href=@{/assets/references/categories.png}"></image>
+            <div><h3>Invierno</h3><span>DESCUBRIR <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></span></div>
+          </a>
+          <a class="category-card" th:href="@{/catalogo(estilo='Dulce')}">
+            <svg class="reference-photo" viewBox="768 0 384 1024" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Inspiración Dulce">
+              <image th:attr="href=@{/assets/category-scenes.png}" width="1536" height="1024" />
             </svg>
-            <div>
-              <h3>Dulce</h3>
-              <span>DESCUBRIR
-                <svg class="ui-icon" viewbox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <path d="M4 12h16m-6-6 6 6-6 6"></path></svg></span>
-</div></a><a class="category-card" href="/catalogo?estilo=Amaderado" data-category="Amaderado" th:href="@{/catalogo?estilo=Amaderado}"><svg class="reference-photo" viewbox="933 329 246 277" preserveaspectratio="xMidYMid slice" role="img" aria-label="Inspiración Amaderado">
-              <image href="/assets/references/categories.png" width="1300" height="725" th:attr="href=@{/assets/references/categories.png}"></image>
+            <div><h3>Dulce</h3><span>DESCUBRIR <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></span></div>
+          </a>
+          <a class="category-card" th:href="@{/catalogo(estilo='Amaderado')}">
+            <svg class="reference-photo" viewBox="1152 0 384 1024" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Inspiración Amaderado">
+              <image th:attr="href=@{/assets/category-scenes.png}" width="1536" height="1024" />
             </svg>
-            <div>
-              <h3>Amaderado</h3>
-              <span>DESCUBRIR
-                <svg class="ui-icon" viewbox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <path d="M4 12h16m-6-6 6 6-6 6"></path></svg></span>
-</div></a>
-        </div>
-        <div class="category-grid mobile-categories">
-          <a class="category-card" href="/catalogo?estilo=Verano" data-category="Verano" th:href="@{/catalogo?estilo=Verano}"><svg class="reference-photo" viewbox="24 11 96 84" preserveaspectratio="xMidYMid slice" role="img" aria-label="Inspiración Verano">
-              <image href="/assets/references/mobile-categories.png" width="269" height="504" th:attr="href=@{/assets/references/mobile-categories.png}"></image>
-            </svg>
-            <div>
-              <h3>Verano</h3>
-              <span>DESCUBRIR
-                <svg class="ui-icon" viewbox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <path d="M4 12h16m-6-6 6 6-6 6"></path></svg></span>
-</div></a><a class="category-card" href="/catalogo?estilo=Limpio" data-category="Limpio" th:href="@{/catalogo?estilo=Limpio}"><svg class="reference-photo" viewbox="127 11 96 84" preserveaspectratio="xMidYMid slice" role="img" aria-label="Inspiración Limpio">
-              <image href="/assets/references/mobile-categories.png" width="269" height="504" th:attr="href=@{/assets/references/mobile-categories.png}"></image>
-            </svg>
-            <div>
-              <h3>Limpio</h3>
-              <span>DESCUBRIR
-                <svg class="ui-icon" viewbox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <path d="M4 12h16m-6-6 6 6-6 6"></path></svg></span>
-</div></a><a class="category-card" href="/catalogo?estilo=Floral" data-category="Floral" th:href="@{/catalogo?estilo=Floral}"><svg class="reference-photo" viewbox="24 139 96 75" preserveaspectratio="xMidYMid slice" role="img" aria-label="Inspiración Floral">
-              <image href="/assets/references/mobile-categories.png" width="269" height="504" th:attr="href=@{/assets/references/mobile-categories.png}"></image>
-            </svg>
-            <div>
-              <h3>Floral</h3>
-              <span>DESCUBRIR
-                <svg class="ui-icon" viewbox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <path d="M4 12h16m-6-6 6 6-6 6"></path></svg></span>
-</div></a><a class="category-card" href="/catalogo?estilo=Amaderado" data-category="Amaderado" th:href="@{/catalogo?estilo=Amaderado}"><svg class="reference-photo" viewbox="127 139 96 75" preserveaspectratio="xMidYMid slice" role="img" aria-label="Inspiración Amaderado">
-              <image href="/assets/references/mobile-categories.png" width="269" height="504" th:attr="href=@{/assets/references/mobile-categories.png}"></image>
-            </svg>
-            <div>
-              <h3>Amaderado</h3>
-              <span>DESCUBRIR
-                <svg class="ui-icon" viewbox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <path d="M4 12h16m-6-6 6 6-6 6"></path></svg></span>
-</div></a>
+            <div><h3>Amaderado</h3><span>DESCUBRIR <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></span></div>
+          </a>
         </div>
       </section>
       <section class="section collection-section">

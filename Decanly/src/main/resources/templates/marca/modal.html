@@ -3,11 +3,11 @@
     <dialog id="modal-marcas" aria-labelledby="titulo-marcas">
 
         <div class="marca-modal-heading">
-            <h2 id="titulo-marcas">Gestionar marcas</h2>
+            <div><span class="eyebrow">Catálogo</span><h2 id="titulo-marcas">Gestionar marcas</h2><p>Organiza las marcas de tus perfumes.</p></div>
 
             <form method="dialog">
-                <button class="text-link" type="submit">
-                    Cerrar
+                <button class="marca-close" type="submit" aria-label="Cerrar gestionar marcas">
+                    ×
                 </button>
             </form>
         </div>
@@ -22,7 +22,7 @@
            th:text="${errorMarca}">
         </p>
 
-        <form class="form-grid"
+        <form class="form-grid marca-editor"
               th:action="@{/marcas}"
               th:object="${marca}"
               method="post">
@@ -56,6 +56,7 @@
             </div>
         </form>
 
+        <h3 class="marca-list-heading">Marcas registradas</h3>
         <div class="table-wrap">
             <table class="admin-table">
                 <thead>
