@@ -1,0 +1,88 @@
+/* Inicio: seis perfumes y cuatro promociones, sin carriles que oculten tarjetas. */
+.home-products { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.home-packs .promo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.brand-carousel { padding-block: 24px; }
+.brand-caption { text-align: center; margin-bottom: 16px; }
+.brand-caption span { font-size: 10px; letter-spacing: .8px; }
+.brand-rail { gap: 32px; align-items: center; scroll-snap-type: x proximity; }
+.brand-rail a { flex: 1 0 130px; min-width: 0; height: 70px; padding: 12px; scroll-snap-align: start; }
+.brand-rail img { width: 100%; height: 42px; object-fit: contain; opacity: 1; filter: grayscale(1); }
+/* Página individual con la composición editorial del modal. */
+#standalone-detail { max-width: 1140px; }
+#standalone-detail .detail { align-items: center; gap: 36px; }
+#standalone-detail .detail-copy { min-width: 0; }
+#standalone-detail h1 { font: 600 clamp(30px, 3.6vw, 49px)/1.08 var(--sans); letter-spacing: -1.2px; margin: 10px 0 16px; overflow-wrap: anywhere; }
+.perfume-size-fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+#standalone-detail .native-detail-sizes label { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; padding: 10px 4px; min-height: 105px; text-align: center; }
+#standalone-detail .native-detail-sizes label:has(input:checked) { border-color: #203c2a; box-shadow: inset 0 0 0 1px #203c2a; background: #f5f6f1; }
+#standalone-detail .native-detail-sizes input { accent-color: #203c2a; margin: 0; }
+.perfume-quantity { display: flex; align-items: center; gap: 10px; font-size: 11px; margin: 0 0 12px; }
+.perfume-quantity .field { width: 64px; padding: 5px 8px; margin: 0; min-height: 32px; }
+#standalone-detail .detail-actions { display: grid; grid-template-columns: 1fr; }
+#standalone-detail .detail-actions .btn { min-height: 44px; }
+#standalone-detail .detail-perks li { color: #23352c; }
+#standalone-detail .detail-gallery { min-width: 0; }
+#standalone-detail .detail-art { height: 430px; }
+#standalone-detail .detail-art > img { width: 100%; height: 90%; object-fit: contain; }
+/* Gestionar marcas: encabezado, formulario y lista dentro del diálogo. */
+#modal-marcas { width: min(680px, calc(100vw - 24px)); max-height: calc(100dvh - 32px); padding: 28px; border: 1px solid #e1e5df; border-radius: 16px; overflow-y: auto; box-shadow: 0 24px 80px #10261a40; }
+#modal-marcas .marca-modal-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
+#modal-marcas h2 { font-size: clamp(24px, 4vw, 30px); margin: 4px 0 8px; letter-spacing: -.8px; }
+#modal-marcas .marca-modal-heading p { font-size: 13px; color: #69756c; margin: 0; }
+#modal-marcas .marca-close { width: 40px; height: 40px; border-radius: 50%; background: #f0f3ee; font-size: 24px; flex-shrink: 0; }
+#modal-marcas .marca-editor { background: #f7f8f5; border: 1px solid #e1e5df; border-radius: 10px; padding: 20px; gap: 12px; }
+#modal-marcas .marca-editor h3 { font-size: 16px; margin: 0; }
+#modal-marcas .field { width: 100%; background: white; font-size: 16px; }
+#modal-marcas .form-buttons { flex-wrap: wrap; }
+#modal-marcas .form-buttons .btn { width: auto; margin: 0; }
+#modal-marcas .marca-list-heading { font-size: 16px; margin: 24px 0 12px; }
+#modal-marcas .admin-table { width: 100%; min-width: 0; table-layout: fixed; }
+#modal-marcas th, #modal-marcas td { padding: 12px 8px; overflow-wrap: anywhere; }
+#modal-marcas th:first-child { width: 48%; }
+#modal-marcas .native-actions { gap: 10px; }
+#modal-marcas .native-actions button, #modal-marcas .native-actions a { min-height: 40px; display: inline-flex; align-items: center; }
+#modal-marcas .native-actions button { color: #963b32; }
+.category-card > svg { width: 100%; height: 100%; }
+@media (max-width: 760px) {
+  .home-products { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px 8px; }
+  .home-products .card-image { padding: 12px 7px; border-radius: 14px; }
+  .home-products .card-info { padding-top: 8px; }
+  .home-products .brand { font-size: 7px; letter-spacing: .35px; }
+  .home-products .card h3 { font-size: 13px; line-height: 1.2; letter-spacing: -.35px; }
+  .home-products .card-price { font-size: 10px; gap: 2px; }
+  .home-products .card-price small { font-size: 7px; }
+  .home-products .size-options { gap: 2px; flex-wrap: nowrap; }
+  .home-products .native-sizes label { min-width: 0; flex: 1; min-height: 44px; }
+  .home-products .native-sizes span { font-size: 10px; padding: 7px 1px; white-space: nowrap; }
+  .home-products .card-add { font-size: 8px; line-height: 1.35; letter-spacing: 0; padding-inline: 3px; }
+  .home-packs .promo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .home-packs .promo { min-width: 0; }
+  .home-packs .promo-images { height: 140px; padding: 18px 8px 6px; gap: 2px; }
+  .home-packs .promo-images img { width: 31%; height: 100%; margin: 0; }
+  .home-packs .promo h3 { font-size: 17px; overflow-wrap: anywhere; }
+  .home-packs .promo-description { font-size: 11px; }
+  .home-packs .promo-actions { display: grid; grid-template-columns: 1fr; }
+  .home-packs .promo-actions .btn { font-size: 10px; padding: 9px 4px; min-height: 44px; margin: 0; width: 100%; }
+  .home-packs .promo-price { font-size: 12px; }
+  .home-packs .promo-includes { font-size: 11px; overflow-wrap: anywhere; }
+  .brand-rail { gap: 16px; }
+  .brand-rail a { flex: 0 0 110px; height: 60px; padding: 8px; }
+  .brand-rail img { height: 34px; }
+  #standalone-detail .detail { grid-template-columns: minmax(0, 1fr); gap: 22px; }
+  #standalone-detail .detail-art { height: 300px; }
+  #standalone-detail .detail-thumbnails { justify-content: center; margin-top: 8px; }
+  #standalone-detail h1 { font-size: 32px; }
+  #modal-marcas { padding: 18px; }
+  #modal-marcas .marca-editor { padding: 14px; }
+  #modal-marcas .form-buttons { gap: 10px; }
+}
+
+@media (max-width: 760px) {
+  .admin-heading { flex-wrap: wrap; }
+  .admin-heading > div { flex: 1 0 100%; min-width: 0; }
+  .admin-heading > .btn { margin: 0; }
+}
+/* El acceso por teclado solo aparece cuando recibe el foco. */
+.skip-link:not(:focus) { clip-path: inset(50%); width: 1px; height: 1px; overflow: hidden; padding: 0; }
+.home-packs .promo-includes li { flex-wrap: wrap; }
+.home-packs .promo-includes li span { white-space: normal; }
