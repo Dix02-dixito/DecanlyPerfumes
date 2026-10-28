@@ -7,9 +7,52 @@ El Dockerfile compila y prueba el proyecto con Maven 3.9.16 y ejecuta Java con u
 
 **No reemplaces tu base con `database/001-schema.sql`.** Ese archivo sirve exclusivamente para crear las 11 tablas en una base nueva y vacía. No incluye productos de ejemplo ni usuarios. Las fotos se guardan en `imagen` y sus relaciones en `producto_imagen`.
 
-Antes de migrar, exporta una copia completa desde MySQL Workbench (estructura y datos, incluidas las columnas BLOB) y prueba su restauración en otra base. Primero debemos comparar esa estructura con las entidades del proyecto. No se han modificado bases externas ni se ofrece una migración automática de una base desconocida.
+Se comprobó `DecanlysqlNuevo.sql`, del commit `9751147`, en una instancia aislada de MySQL 8.4: contiene 50 productos, 150 presentaciones, 50 imágenes, 21 marcas, 9 promociones y 2 usuarios. El esquema es compatible con la aplicación y no necesita ALTER TABLE. Las imágenes conservan sus hashes SHA-256. Esa copia no contiene pedidos ni fotos adicionales de galería. La importación fuerza UTF-8 (`utf8mb4`) para conservar «Día» y demás acentos; sin ello, el cliente de MySQL del contenedor rechazaba productos por la restricción `chk_producto_ocasion`.
+
+Las cuentas ADMIN y VENDEDOR se conservan con sus hashes BCrypt originales. La aplicación actual permite iniciar sesión únicamente a ADMIN. La cuenta `admin@decanly.local` creada para la base vacía de prueba anterior no pertenece a tu SQL y no se añade al importarlo. Las contraseñas existentes no se pueden recuperar a partir de sus hashes.
+
+El volcado completo se retiró de esta rama y se excluyó de Git y del contexto Docker porque incluye cuentas. La copia original se conserva aparte para la importación. Retirarlo de la versión actual no borra versiones anteriores del historial de GitHub. Antes de publicar, rota las contraseñas de cuentas incluidas en un repositorio accesible a otras personas; una limpieza del historial requiere coordinación aparte.
+
+Si tu base local ya tiene cambios posteriores, exporta nuevamente estructura y datos, incluyendo BLOB, y verifica una restauración antes de migrar. No se han modificado bases externas.
 
 En producción Hibernate usa `validate`: verifica el esquema y no crea, modifica ni borra tablas. Los usuarios y contraseñas ya existentes se conservan.
+
+## Windows: instalar con tu catálogo real
+
+Usa Docker Desktop con contenedores Linux y abre PowerShell en `Decanly`. Este procedimiento inicializa un proyecto nuevo, `decanly-catalogo`, para conservar cualquier instalación anterior.
+
+```powershell
+New-Item -ItemType Directory -Force backups
+# Ajusta la ruta de origen a donde guardaste tu SQL:
+Copy-Item "$env:USERPROFILE\Downloads\DecanlysqlNuevo.sql" .\backups\DecanlysqlNuevo.sql
+if (!(Test-Path .env)) { Copy-Item .env.example .env }
+notepad .env
+```
+
+Configura contraseñas nuevas y distintas para `DB_PASSWORD` y `MYSQL_ROOT_PASSWORD`, y estos valores:
+
+```dotenv
+DB_INIT_SQL=./backups/DecanlysqlNuevo.sql
+BOOTSTRAP_ADMIN=false
+ADMIN_EMAIL=
+ADMIN_PASSWORD=
+COOKIE_SECURE=false
+```
+
+`COOKIE_SECURE=false` sirve solo para probar por HTTP en tu computadora; usa `true` en la dirección pública HTTPS. El SQL debe existir y ser legible por el contenedor. Si falta, Compose falla sin crear un directorio en su lugar. En Linux, guarda el archivo en una carpeta privada y permite que el proceso de MySQL lea el archivo montado.
+
+Si hay otra instalación usando el puerto 8091, detén solo su servicio web (sin eliminar sus volúmenes). Luego:
+
+```powershell
+docker compose -p decanly-catalogo up --build -d
+docker compose -p decanly-catalogo logs --tail 80 db web
+```
+
+Abre `http://localhost:8091` y entra en `/cuenta` con tu ADMIN existente. El SQL se ejecuta **solo con el volumen nuevo y vacío**; cambiar `DB_INIT_SQL` después no reimporta ni actualiza una base ya creada. No uses `down -v` para forzar una importación: eliminaría los datos del proyecto. Si falla la primera importación, revisa los logs antes de continuar.
+
+La comprobación de salud exige una marca de importación terminada y permisos reducidos; una carga parcial no habilita la web. Una instalación creada con el Compose anterior no tiene esa marca. Para actualizar esa instalación, primero respalda y comprueba todas sus tablas, datos y cuentas; después ejecuta `docker compose -p NOMBRE_ANTERIOR exec db bash /docker-entrypoint-initdb.d/20-restrict-user.sh` con los archivos nuevos montados. Ese paso conserva los datos y establece los permisos y la marca, por lo que no debe usarse para dar por completa una importación fallida. La instalación nueva `decanly-catalogo` no necesita este paso.
+
+La contraseña MySQL pertenece al servicio de base de datos y es distinta de la contraseña del administrador de la web. `BOOTSTRAP_ADMIN` permanece desactivado al importar tus usuarios.
 
 ## Probar desde Windows con una base nueva
 
@@ -18,7 +61,7 @@ En producción Hibernate usa `validate`: verifica el esquema y no crea, modifica
 3. Copia la configuración:
 
 ```powershell
-Copy-Item .env.example .env
+if (!(Test-Path .env)) { Copy-Item .env.example .env }
 notepad .env
 ```
 

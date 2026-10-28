@@ -7,3 +7,6 @@ node_modules/
 !.env.example
 .secrets/
 backups/
+# Exportaciones con datos y cuentas: mantener fuera del repositorio.
+BaseDeDatos/*.sql
+BaseDeDatos/*.zip

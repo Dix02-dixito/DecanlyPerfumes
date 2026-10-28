@@ -6,5 +6,6 @@
 target
 **/node_modules
 backups
+BaseDeDatos
 .secrets
 *.log
