@@ -1,13 +1,15 @@
-/* Inicio: seis perfumes y cuatro promociones, sin carriles que oculten tarjetas. */
-.best-section, .home-packs { max-width: 1240px; }
-.home-products { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+/* Inicio: cuatro perfumes y cuatro promociones, en dos filas de dos tarjetas. */
+.best-section, .home-packs { max-width: 880px; }
+.home-products, .home-packs .promo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 24px; }
 .home-products .card .card-image { aspect-ratio: 1 / 1.02; }
 .home-products .card-info { padding-top: 10px; }
-.home-products .card h3 { font-size: 21px; }
-.home-packs .promo-images { height: 220px; margin-bottom: 10px; }
-.home-packs .promo h3 { font-size: 28px; }
+.home-products .card h3 { font-size: 20px; }
+.home-products .card-info > form { display: flex; flex-direction: column; flex: 1; }
+.home-products .card-add { margin-top: auto; }
+.home-packs .promo-images { height: 190px; margin-bottom: 10px; }
+.home-packs .promo h3 { font-size: 24px; }
 .home-packs .promo-description { min-height: 0; margin-bottom: 6px; }
-.home-packs .promo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.home-packs .promo-actions .btn { min-height: 44px; }
 .brand-carousel { padding-block: 24px; }
 .brand-caption { text-align: center; margin-bottom: 16px; }
 .brand-caption span { font-size: 10px; letter-spacing: .8px; }
@@ -51,18 +53,18 @@
 #modal-marcas .native-actions button { color: #963b32; }
 .category-card > svg { width: 100%; height: 100%; }
 @media (max-width: 760px) {
-  .home-products { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px 8px; }
+  .home-products { gap: 24px 12px; }
   .home-products .card .card-image { padding: 10px 7px; border-radius: 12px; }
   .home-products .card-info { padding-top: 6px; }
-  .home-products .brand { font-size: 7px; letter-spacing: .35px; }
-  .home-products .card h3 { font-size: 13px; line-height: 1.2; letter-spacing: -.35px; }
-  .home-products .card-price { font-size: 10px; gap: 2px; min-height: 20px; }
-  .home-products .card-price small { font-size: 7px; }
-  .home-products .size-options { gap: 2px; flex-wrap: nowrap; }
+  .home-products .brand { font-size: 8px; letter-spacing: .5px; }
+  .home-products .card h3 { font-size: 16px; line-height: 1.2; letter-spacing: -.35px; }
+  .home-products .card-price { font-size: 12px; gap: 2px; min-height: 20px; }
+  .home-products .card-price small { font-size: 8px; }
+  .home-products .size-options { gap: 4px; flex-wrap: nowrap; }
   .home-products .native-sizes label { min-width: 0; flex: 1; min-height: 44px; }
-  .home-products .native-sizes span { font-size: 10px; padding: 7px 1px; white-space: nowrap; }
-  .home-products .card-add { font-size: 8px; line-height: 1.35; letter-spacing: 0; padding-inline: 3px; }
-  .home-packs .promo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .home-products .native-sizes span { font-size: 11px; padding: 7px 1px; white-space: nowrap; }
+  .home-products .card-add { font-size: 10px; line-height: 1.35; letter-spacing: .3px; padding-inline: 4px; }
+  .home-packs .promo-grid { gap: 24px 12px; }
   .home-packs .promo { min-width: 0; }
   .home-packs .promo-images { height: 120px; padding: 16px 8px 6px; gap: 2px; }
   .home-packs .promo-images img { width: 31%; height: 100%; margin: 0; }
