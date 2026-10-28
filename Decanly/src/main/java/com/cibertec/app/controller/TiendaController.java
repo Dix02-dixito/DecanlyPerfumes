@@ -43,7 +43,7 @@ public class TiendaController {
 	@GetMapping("/")
 	public String inicio(Model m) {
 		List<Producto> p = catalogo.listar("", "", "", "", "featured", true);
-		m.addAttribute("productos", p.subList(0, Math.min(6, p.size())));
+		m.addAttribute("productos", p.subList(0, Math.min(4, p.size())));
 		m.addAttribute("packs", catalogo.packs().stream().limit(4).toList());
 		return "inicio/index";
 	}
