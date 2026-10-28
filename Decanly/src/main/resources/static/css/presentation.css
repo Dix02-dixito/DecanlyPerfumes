@@ -1,5 +1,12 @@
 /* Inicio: seis perfumes y cuatro promociones, sin carriles que oculten tarjetas. */
+.best-section, .home-packs { max-width: 1240px; }
 .home-products { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.home-products .card .card-image { aspect-ratio: 1 / 1.02; }
+.home-products .card-info { padding-top: 10px; }
+.home-products .card h3 { font-size: 21px; }
+.home-packs .promo-images { height: 220px; margin-bottom: 10px; }
+.home-packs .promo h3 { font-size: 28px; }
+.home-packs .promo-description { min-height: 0; margin-bottom: 6px; }
 .home-packs .promo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .brand-carousel { padding-block: 24px; }
 .brand-caption { text-align: center; margin-bottom: 16px; }
@@ -45,11 +52,11 @@
 .category-card > svg { width: 100%; height: 100%; }
 @media (max-width: 760px) {
   .home-products { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px 8px; }
-  .home-products .card-image { padding: 12px 7px; border-radius: 14px; }
-  .home-products .card-info { padding-top: 8px; }
+  .home-products .card .card-image { padding: 10px 7px; border-radius: 12px; }
+  .home-products .card-info { padding-top: 6px; }
   .home-products .brand { font-size: 7px; letter-spacing: .35px; }
   .home-products .card h3 { font-size: 13px; line-height: 1.2; letter-spacing: -.35px; }
-  .home-products .card-price { font-size: 10px; gap: 2px; }
+  .home-products .card-price { font-size: 10px; gap: 2px; min-height: 20px; }
   .home-products .card-price small { font-size: 7px; }
   .home-products .size-options { gap: 2px; flex-wrap: nowrap; }
   .home-products .native-sizes label { min-width: 0; flex: 1; min-height: 44px; }
@@ -57,9 +64,9 @@
   .home-products .card-add { font-size: 8px; line-height: 1.35; letter-spacing: 0; padding-inline: 3px; }
   .home-packs .promo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .home-packs .promo { min-width: 0; }
-  .home-packs .promo-images { height: 140px; padding: 18px 8px 6px; gap: 2px; }
+  .home-packs .promo-images { height: 120px; padding: 16px 8px 6px; gap: 2px; }
   .home-packs .promo-images img { width: 31%; height: 100%; margin: 0; }
-  .home-packs .promo h3 { font-size: 17px; overflow-wrap: anywhere; }
+  .home-packs .promo h3 { font-size: 16px; min-height: 0; margin-block: 6px; overflow-wrap: anywhere; }
   .home-packs .promo-description { font-size: 11px; }
   .home-packs .promo-actions { display: grid; grid-template-columns: 1fr; }
   .home-packs .promo-actions .btn { font-size: 10px; padding: 9px 4px; min-height: 44px; margin: 0; width: 100%; }

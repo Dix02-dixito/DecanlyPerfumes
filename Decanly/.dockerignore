@@ -1,0 +1,10 @@
+.git
+.metadata
+.settings
+.env
+.env.*
+target
+**/node_modules
+backups
+.secrets
+*.log

@@ -1,0 +1,46 @@
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: decanly
+      MYSQL_USER: decanly
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Define MYSQL_ROOT_PASSWORD}
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./database/001-schema.sql:/docker-entrypoint-initdb.d/10-schema.sql:ro
+      - ./deploy/20-restrict-user.sh:/docker-entrypoint-initdb.d/20-restrict-user.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=\"$$MYSQL_PASSWORD\" mysql --protocol=TCP -h127.0.0.1 -u decanly decanly -e 'SELECT 1 FROM usuario LIMIT 1' >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
+  web:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:mysql://db:3306/decanly?sslMode=REQUIRED
+      DB_USER: decanly
+      DB_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD}
+      BOOTSTRAP_ADMIN: ${BOOTSTRAP_ADMIN:-false}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      WHATSAPP_NUMBER: 51907032488
+      SERVER_SERVLET_SESSION_COOKIE_SECURE: ${COOKIE_SECURE:-true}
+    ports:
+      - "127.0.0.1:8091:8080"
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+volumes:
+  db-data:

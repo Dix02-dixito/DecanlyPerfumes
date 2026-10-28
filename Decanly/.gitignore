@@ -3,3 +3,7 @@ node_modules/
 .env
 *.log
 .settings/*.prefs.bak
+.env.*
+!.env.example
+.secrets/
+backups/
