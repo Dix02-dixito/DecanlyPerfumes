@@ -3,3 +3,10 @@ node_modules/
 .env
 *.log
 .settings/*.prefs.bak
+.env.*
+!.env.example
+.secrets/
+backups/
+# Exportaciones con datos y cuentas: mantener fuera del repositorio.
+BaseDeDatos/*.sql
+BaseDeDatos/*.zip
