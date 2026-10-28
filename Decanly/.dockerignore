@@ -7,5 +7,6 @@ target
 **/node_modules
 backups
 BaseDeDatos
+database
 .secrets
 *.log
