@@ -1,179 +1,121 @@
 <!doctype html>
 <html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
-
 <head th:replace="~{fragments/layout :: head('Carrito')}">
-	<title>Carrito</title>
+    <title>Carrito</title>
 </head>
-
 <body>
+    <div th:replace="~{fragments/layout :: cabecera}"></div>
+    <main id="app" class="cart-page" tabindex="-1">
+        <p class="notice" role="status" th:if="${exito != null}" th:text="${exito}"></p>
+        <p class="notice" role="alert" th:if="${error != null}" th:text="${error}"></p>
+        <section class="page-head">
+            <div class="eyebrow">Tu selección</div>
+            <h1>Pequeños frascos.<br /><em>Grandes elecciones.</em></h1>
+            <p>Revisa tu selección. El vendedor confirmará disponibilidad, envío y forma de pago.</p>
+        </section>
+        <section class="section cart-section" aria-label="Productos y resumen del carrito">
+            <div class="split cart-layout">
+                <div class="cart-selection">
+                    <div th:if="${#lists.isEmpty(carrito)}" class="empty">
+                        <h2>Tu carrito aún no tiene un aroma.</h2>
+                        <p>Encuentra ese perfume que quieres probar.</p>
+                        <a class="btn" th:href="@{/catalogo}">Explorar perfumes <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 12h16m-6-6 6 6-6 6" /></svg></a>
+                    </div>
+                    <div th:unless="${#lists.isEmpty(carrito)}" class="cart-items">
+                        <article th:each="item, estado : ${carrito}" class="cart-row">
+                            <a class="cart-image" th:href="@{/perfume/{id}(id=${item.productoId})}">
+                                <img th:src="@{/imagenes/{id}(id=${item.imagenId})}" th:alt="${item.nombre}" width="120" height="140" />
+                            </a>
+                            <div class="cart-item-info">
+                                <h2><a th:href="@{/perfume/{id}(id=${item.productoId})}" th:text="${item.nombre}"></a></h2>
+                                <p class="cart-item-meta">
+                                    <span th:text="${item.ml} + ' ml'"></span> ·
+                                    <span th:text="${item.packPersonalizado} ? 'Pack personalizado' : (${item.packId != null} ? 'Promoción' : 'Decant individual')"></span>
+                                </p>
+                                <p class="cart-unit-price" th:text="'S/ ' + ${#numbers.formatDecimal(item.precio,1,2,'POINT')} + ' por unidad'"></p>
+                                <form class="cart-edit-form" th:if="${item.packId == null and !item.packPersonalizado}"
+                                    th:action="@{/carrito/modificar}" method="post">
+                                    <input type="hidden" name="lineaId" th:value="${item.lineaId}" />
+                                    <div class="quantity">
+                                        <button type="submit" name="accion" value="disminuir" th:disabled="${item.cantidad <= 1}"
+                                            th:attr="aria-label='Disminuir cantidad de ' + ${item.nombre} + ', ' + ${item.ml} + ' ml'">−</button>
+                                        <span><span class="sr-only">Cantidad: </span><span class="cart-quantity-value" th:text="${item.cantidad}"></span></span>
+                                        <button type="submit" name="accion" value="aumentar" th:disabled="${item.cantidad >= 9999}"
+                                            th:attr="aria-label='Aumentar cantidad de ' + ${item.nombre} + ', ' + ${item.ml} + ' ml'">+</button>
+                                    </div>
+                                    <button class="cart-remove" type="submit" name="accion" value="quitar"
+                                        th:attr="aria-label='Quitar ' + ${item.nombre} + ', ' + ${item.ml} + ' ml'">Quitar</button>
+                                </form>
+                                <th:block th:if="${item.packId != null or item.packPersonalizado}">
+                                    <p class="cart-item-quantity">Cantidad: <strong th:text="${item.cantidad}"></strong></p>
+                                    <th:block th:if="${estado.first or item.grupoPack != carrito[estado.index - 1].grupoPack}">
+                                        <p class="cart-pack-note">Este pack se añade o se quita completo.</p>
+                                        <form class="cart-edit-form cart-pack-actions" th:action="@{/carrito/modificar}" method="post">
+                                            <input type="hidden" name="lineaId" th:value="${item.lineaId}" />
+                                            <button class="text-link" type="submit" name="accion" value="aumentar">Añadir otro pack</button>
+                                            <button class="cart-remove" type="submit" name="accion" value="quitar">Quitar pack</button>
+                                        </form>
+                                    </th:block>
+                                </th:block>
+                            </div>
+                            <strong class="cart-item-total"><span class="sr-only">Subtotal del artículo: </span><span th:text="'S/ ' + ${#numbers.formatDecimal(item.subtotal,1,2,'POINT')}"></span></strong>
+                        </article>
+                    </div>
+                    <div class="cart-selection-actions">
+                        <a class="text-link" th:href="@{/catalogo}">← Seguir descubriendo</a>
+                        <form th:action="@{/carrito/vaciar}" method="post" th:unless="${#lists.isEmpty(carrito)}">
+                            <button class="text-link" type="submit">Vaciar selección</button>
+                        </form>
+                    </div>
+                </div>
+                <aside class="panel cart-summary" aria-label="Resumen de tu pedido">
+                    <h2>Tu pedido</h2>
+                    <div th:each="item : ${carrito}" class="summary-row">
+                        <span><span th:text="${item.nombre}"></span> (<span th:text="${item.ml}"></span> ml) × <span th:text="${item.cantidad}"></span></span>
+                        <span th:text="'S/ ' + ${#numbers.formatDecimal(item.subtotal,1,2,'POINT')}"></span>
+                    </div>
+                    <hr />
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span th:text="'S/ ' + ${#numbers.formatDecimal(subtotal,1,2,'POINT')}"></span>
+                    </div>
+                    <p class="hint">El envío se coordina por WhatsApp con el vendedor.</p>
+                    <div class="summary-row total">
+                        <strong>Total de productos</strong>
+                        <strong th:text="'S/ ' + ${#numbers.formatDecimal(total,1,2,'POINT')}"></strong>
+                    </div>
+                    <form class="checkout-form" id="datos-pedido" th:action="@{/pedido/registrar}" method="post">
+                        <h3>Datos de tu pedido</h3>
 
-	<!-- Cabecera -->
-	<div th:replace="~{fragments/layout :: cabecera}"></div>
+                        <label for="nombre">Nombre completo</label>
+                        <input class="field" id="nombre" name="nombreCliente" maxlength="120" minlength="2"
+                            autocomplete="name" required />
 
+                        <label for="telefono">WhatsApp</label>
+                        <input class="field" id="telefono" name="telefono" type="tel" maxlength="15"
+                            autocomplete="tel" required />
 
-	<!-- Contenido Principal -->
-	<main id="app" tabindex="-1">
-		<main id="app" tabindex="-1">
+                        <label for="direccion">Dirección</label>
+                        <input class="field" id="direccion" name="direccion" minlength="5" maxlength="250"
+                            autocomplete="street-address" required />
 
-			<p class="notice" role="status" th:if="${exito != null}" th:text="${exito}">
-			</p>
+                        <label class="check-label">
+                            <input type="checkbox" name="aceptaTerminos" value="true" required />
 
-			<p class="notice" role="alert" th:if="${error != null}" th:text="${error}">
-			</p>
+                            <span>
+                                Confirmo que mis datos son correctos y que recibiré
+                                y pagaré el pedido contra entrega.
+                                Acepto los
+                                <a th:href="@{/terminos}">términos y condiciones</a>.
+                            </span>
+                        </label>
 
-			<section class="page-head">
-				<!-- Tu encabezado actual continúa aquí -->
-				<!-- Encabezado de la página -->
-				<section class="page-head">
-					<div class="eyebrow">Tu selección</div>
-					<h1>Pequeños frascos.<br /><em>Grandes elecciones.</em></h1>
-					<p>Revisa tu selección. El vendedor confirmará disponibilidad, envío y forma de pago.</p>
-				</section>
-
-				<!-- Sección del Carrito -->
-				<section class="section" style="padding-top: 15px;">
-					<div class="split">
-
-						<!-- Columna Izquierda: Productos / Carrito Vacío -->
-						<div>
-							<div th:if="${#lists.isEmpty(carrito)}" class="empty">
-
-								<h2>Tu carrito aún no tiene un aroma.</h2>
-
-								<p>
-									Encuentra ese perfume que quieres probar.
-								</p>
-
-								<a class="btn" th:href="@{/catalogo}">
-									Explorar perfumes ↗
-								</a>
-
-							</div>
-
-							<div th:unless="${#lists.isEmpty(carrito)}">
-
-								<div th:each="item : ${carrito}" class="panel" style="margin-bottom:15px;">
-
-									<img th:src="@{/imagenes/{id}(id=${item.imagenId})}" alt="Perfume" style="
-							     width:120px;
-							     height:120px;
-							     object-fit:cover;
-							     border-radius:10px;
-							     margin-bottom:10px;">
-
-									<h3 th:text="${item.nombre}">
-									</h3>
-
-									<p>
-										Tamaño:
-										<strong th:text="${item.ml} + ' ml'">
-										</strong>
-									</p>
-
-									<p>
-										Cantidad:
-										<strong th:text="${item.cantidad}">
-										</strong>
-									</p>
-
-									<p>
-										Precio:
-										S/
-										<strong th:text="${item.precio}">
-										</strong>
-									</p>
-
-									<p>
-										Subtotal:
-										S/
-										<strong th:text="${item.subtotal}">
-										</strong>
-									</p>
-
-								</div>
-
-							</div>
-							<form th:action="@{/carrito/vaciar}" method="post">
-								<button class="text-link">Vaciar selección</button>
-							</form>
-						</div>
-
-						<!-- Columna Derecha: Resumen y Formulario de Pedido -->
-						<aside class="panel">
-							<h2>Tu pedido</h2>
-
-							<div th:each="item : ${carrito}" class="summary-row">
-
-								<span>
-									<span th:text="${item.nombre}"></span>
-									(<span th:text="${item.ml}"></span> ml)
-									x
-									<span th:text="${item.cantidad}"></span>
-								</span>
-
-								<span th:text="'S/ ' + ${item.subtotal}">
-								</span>
-
-							</div>
-
-							<hr>
-
-							<div class="summary-row">
-
-								<span>Subtotal</span>
-
-								<span th:text="'S/ ' + ${subtotal}">
-								</span>
-
-							</div>
-
-							<p class="hint">El envío se coordina por WhatsApp con el vendedor.</p>
-
-							<div class="summary-row total">
-
-								<strong>Total de productos</strong>
-
-								<strong th:text="'S/ ' + ${total}">
-								</strong>
-
-							</div>
-
-							<form class="checkout-form" th:action="@{/pedido/registrar}" method="post">
-								<h3>Datos de tu pedido</h3>
-
-								<label for="nombre">Nombre completo</label>
-								<input class="field" id="nombre" name="nombreCliente" maxlength="120" minlength="2"
-									autocomplete="name" required />
-
-								<label for="telefono">WhatsApp</label>
-								<input class="field" id="telefono" name="telefono" type="tel" maxlength="15"
-									autocomplete="tel" required />
-
-								<label for="direccion">Dirección</label>
-								<input class="field" id="direccion" name="direccion" minlength="5" maxlength="250"
-									autocomplete="street-address" required />
-
-								<label class="check-label">
-									<input type="checkbox" name="aceptaTerminos" value="true" required />
-
-									<span>
-										Confirmo que mis datos son correctos y que recibiré
-										y pagaré el pedido contra entrega.
-										Acepto los
-										<a th:href="@{/terminos}">términos y condiciones</a>.
-									</span>
-								</label>
-
-								<button class="btn">Confirmar pedido ↗</button>
-							</form>
-						</aside>
-
-					</div>
-				</section>
-		</main>
-
-		<!-- Pie de página -->
-		<div th:replace="~{fragments/layout :: pie}"></div>
+                        <button class="btn" type="submit">Confirmar pedido <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 12h16m-6-6 6 6-6 6" /></svg></button>
+                    </form>
+                </aside>
+            </div>
+        </section>
+    </main>
+    <div th:replace="~{fragments/layout :: pie}"></div>
 </body>
-
 </html>

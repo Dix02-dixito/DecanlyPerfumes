@@ -31,6 +31,79 @@ public class CarritoServiceImpl implements CarritoService {
 
     private final CatalogoService catalogo;
     private final PackPersonalizadoService packPersonalizadoService;
+
+    @Override
+    public List<CarritoItem> modificarLinea(
+            String lineaId, String accion, List<CarritoItem> actuales) {
+
+        if (accion == null || !List.of("aumentar", "disminuir", "quitar").contains(accion)) {
+            throw new IllegalArgumentException("Selecciona una acción válida.");
+        }
+
+        CarritoItem item = actuales.stream()
+                .filter(linea -> linea.getLineaId().equals(lineaId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "El artículo ya no está en tu carrito. Revisa tu selección."));
+
+        if (item.getPackId() != null || item.isPackPersonalizado()) {
+            if (item.getGrupoPack() == null || item.getGrupoPack().isBlank()) {
+                throw new IllegalArgumentException("Vuelve a agregar este pack al carrito.");
+            }
+            List<CarritoItem> grupo = actuales.stream()
+                    .filter(linea -> item.getGrupoPack().equals(linea.getGrupoPack()))
+                    .toList();
+            return switch (accion) {
+                case "quitar" -> actuales.stream().filter(linea -> !grupo.contains(linea)).toList();
+                case "aumentar" -> item.getPackId() != null
+                        ? agregarPromocion(item.getPackId(), actuales)
+                        : agregarPackPersonalizado(grupo.stream().map(linea -> new SeleccionPack(
+                                linea.getProductoId(), linea.getMl(), linea.getCantidad())).toList(), actuales);
+                default -> throw new IllegalArgumentException(
+                        "El pack se conserva completo. Usa Quitar pack para retirarlo.");
+            };
+        }
+
+        if ("quitar".equals(accion)) {
+            return actuales.stream().filter(linea -> linea != item).toList();
+        }
+
+        int cantidad = item.getCantidad() + ("aumentar".equals(accion) ? 1 : -1);
+        if (cantidad < 1 || cantidad > 9999) {
+            throw new IllegalArgumentException("La cantidad debe estar entre 1 y 9999.");
+        }
+
+        if ("aumentar".equals(accion)) {
+            Producto producto = catalogo.buscar(item.getProductoId());
+            Presentacion presentacion = producto == null ? null : producto.buscarPresentacion(item.getMl());
+            if (producto == null || !producto.isActivo() || presentacion == null) {
+                throw new IllegalArgumentException("Esta presentación ya no está disponible.");
+            }
+            long unidades = actuales.stream()
+                    .filter(linea -> Objects.equals(linea.getProductoId(), item.getProductoId())
+                            && Objects.equals(linea.getMl(), item.getMl()))
+                    .mapToLong(CarritoItem::getCantidad).sum();
+            if (unidades + 1 > presentacion.getStock()) {
+                throw new IllegalArgumentException("No hay suficientes existencias de esta presentación.");
+            }
+            if (item.getPrecio() == null || item.getPrecio().compareTo(presentacion.getPrecioFinal()) != 0) {
+                throw new IllegalArgumentException("El precio cambió. Quita el artículo y vuelve a agregarlo.");
+            }
+        }
+
+        // Se sustituye la línea solo después de validar; un error conserva la selección original.
+        CarritoItem modificada = new CarritoItem();
+        modificada.setLineaId(item.getLineaId());
+        modificada.setProductoId(item.getProductoId());
+        modificada.setImagenId(item.getImagenId());
+        modificada.setNombre(item.getNombre());
+        modificada.setMl(item.getMl());
+        modificada.setCantidad(cantidad);
+        modificada.setPrecio(item.getPrecio());
+        List<CarritoItem> resultado = new ArrayList<>(actuales);
+        resultado.set(resultado.indexOf(item), modificada);
+        return List.copyOf(resultado);
+    }
     
     @Override
     public List<CarritoItem> agregarProducto(
@@ -108,6 +181,7 @@ public class CarritoServiceImpl implements CarritoService {
         if (existente == null) {
             resultado.add(item);
         } else {
+            item.setLineaId(existente.getLineaId());
             resultado.set(resultado.indexOf(existente), item);
         }
 
@@ -139,6 +213,7 @@ public class CarritoServiceImpl implements CarritoService {
 
         List<CarritoItem> resultado = new ArrayList<>(actuales);
         int descuentoPack = catalogo.descuentoPack();
+        String grupo = UUID.randomUUID().toString();
 
         for (PackDetalle detalle : pack.getDetalles()) {
 
@@ -169,6 +244,7 @@ public class CarritoServiceImpl implements CarritoService {
 
             CarritoItem item = new CarritoItem();
             item.setPackId(pack.getIdPack());
+            item.setGrupoPack(grupo);
             item.setProductoId(producto.getId());
             item.setNombre(producto.getNombre());
             item.setImagenId(producto.getImagen().getId());

@@ -6,6 +6,11 @@ import com.cibertec.app.dto.SeleccionPack;
 
 public interface CarritoService {
 
+    List<CarritoItem> modificarLinea(
+            String lineaId,
+            String accion,
+            List<CarritoItem> actuales);
+
     List<CarritoItem> agregarProducto(
             Long productoId,
             Integer ml,
