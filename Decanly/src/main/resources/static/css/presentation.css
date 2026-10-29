@@ -1,4 +1,4 @@
-/* Inicio: cuatro perfumes y cuatro promociones, en dos filas de dos tarjetas. */
+/* Inicio: cuatro perfumes y cuatro promociones; dos columnas en celular. */
 .best-section, .home-packs { max-width: 880px; }
 .home-products, .home-packs .promo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 24px; }
 .home-products .card .card-image { aspect-ratio: 1 / 1.02; }
@@ -10,6 +10,10 @@
 .home-packs .promo h3 { font-size: 24px; }
 .home-packs .promo-description { min-height: 0; margin-bottom: 6px; }
 .home-packs .promo-actions .btn { min-height: 44px; }
+@media (min-width: 1024px) {
+  .best-section, .home-packs { max-width: 1400px; }
+  .home-products, .home-packs .promo-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
 .brand-carousel.section { padding-block: 24px; }
 .brand-caption { text-align: center; margin-bottom: 16px; }
 .brand-caption span { font-size: 10px; letter-spacing: .8px; }
