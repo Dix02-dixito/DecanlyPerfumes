@@ -1,6 +1,7 @@
 package com.cibertec.app.entity;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -8,6 +9,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CarritoItem {
+
+    private String lineaId = UUID.randomUUID().toString();
 
     private Long productoId;
     private Long imagenId;

@@ -22,7 +22,7 @@
                         <a class="btn" th:href="@{/catalogo}">Explorar perfumes <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 12h16m-6-6 6 6-6 6" /></svg></a>
                     </div>
                     <div th:unless="${#lists.isEmpty(carrito)}" class="cart-items">
-                        <article th:each="item : ${carrito}" class="cart-row">
+                        <article th:each="item, estado : ${carrito}" class="cart-row">
                             <a class="cart-image" th:href="@{/perfume/{id}(id=${item.productoId})}">
                                 <img th:src="@{/imagenes/{id}(id=${item.imagenId})}" th:alt="${item.nombre}" width="120" height="140" />
                             </a>
@@ -33,7 +33,30 @@
                                     <span th:text="${item.packPersonalizado} ? 'Pack personalizado' : (${item.packId != null} ? 'Promoción' : 'Decant individual')"></span>
                                 </p>
                                 <p class="cart-unit-price" th:text="'S/ ' + ${#numbers.formatDecimal(item.precio,1,2,'POINT')} + ' por unidad'"></p>
-                                <p class="cart-item-quantity">Cantidad: <strong th:text="${item.cantidad}"></strong></p>
+                                <form class="cart-edit-form" th:if="${item.packId == null and !item.packPersonalizado}"
+                                    th:action="@{/carrito/modificar}" method="post">
+                                    <input type="hidden" name="lineaId" th:value="${item.lineaId}" />
+                                    <div class="quantity">
+                                        <button type="submit" name="accion" value="disminuir" th:disabled="${item.cantidad <= 1}"
+                                            th:attr="aria-label='Disminuir cantidad de ' + ${item.nombre} + ', ' + ${item.ml} + ' ml'">−</button>
+                                        <span><span class="sr-only">Cantidad: </span><span class="cart-quantity-value" th:text="${item.cantidad}"></span></span>
+                                        <button type="submit" name="accion" value="aumentar" th:disabled="${item.cantidad >= 9999}"
+                                            th:attr="aria-label='Aumentar cantidad de ' + ${item.nombre} + ', ' + ${item.ml} + ' ml'">+</button>
+                                    </div>
+                                    <button class="cart-remove" type="submit" name="accion" value="quitar"
+                                        th:attr="aria-label='Quitar ' + ${item.nombre} + ', ' + ${item.ml} + ' ml'">Quitar</button>
+                                </form>
+                                <th:block th:if="${item.packId != null or item.packPersonalizado}">
+                                    <p class="cart-item-quantity">Cantidad: <strong th:text="${item.cantidad}"></strong></p>
+                                    <th:block th:if="${estado.first or item.grupoPack != carrito[estado.index - 1].grupoPack}">
+                                        <p class="cart-pack-note">Este pack se añade o se quita completo.</p>
+                                        <form class="cart-edit-form cart-pack-actions" th:action="@{/carrito/modificar}" method="post">
+                                            <input type="hidden" name="lineaId" th:value="${item.lineaId}" />
+                                            <button class="text-link" type="submit" name="accion" value="aumentar">Añadir otro pack</button>
+                                            <button class="cart-remove" type="submit" name="accion" value="quitar">Quitar pack</button>
+                                        </form>
+                                    </th:block>
+                                </th:block>
                             </div>
                             <strong class="cart-item-total"><span class="sr-only">Subtotal del artículo: </span><span th:text="'S/ ' + ${#numbers.formatDecimal(item.subtotal,1,2,'POINT')}"></span></strong>
                         </article>

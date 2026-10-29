@@ -116,6 +116,13 @@
 .cart-page .cart-item-meta { font-size: 14px; color: var(--blue); margin: 0 0 8px; }
 .cart-page .cart-unit-price { font-size: 12px; color: var(--muted); margin: 0 0 12px; }
 .cart-page .cart-item-quantity { margin: 0; font-size: 14px; }
+.cart-edit-form { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; }
+.cart-page .quantity button { width: 44px; height: 44px; font-size: 18px; }
+.cart-page .quantity > span { min-width: 40px; font-size: 16px; padding-inline: 4px; }
+.cart-page .quantity button:disabled { opacity: .4; cursor: not-allowed; }
+.cart-remove { min-height: 44px; padding: 8px 0; background: none; color: var(--muted); font-size: 13px; text-decoration: underline; text-underline-offset: 3px; }
+.cart-page .cart-pack-note { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
+.cart-pack-actions .text-link { min-height: 44px; font-size: 12px; }
 .cart-page .cart-item-total { font-size: 17px; white-space: nowrap; }
 .cart-selection-actions { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px 24px; margin-top: 20px; }
 .cart-selection-actions .text-link { min-height: 44px; }

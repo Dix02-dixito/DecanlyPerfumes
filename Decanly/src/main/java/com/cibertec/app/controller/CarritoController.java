@@ -1,6 +1,5 @@
 package com.cibertec.app.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -11,10 +10,6 @@ import com.cibertec.app.service.CarritoService;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.cibertec.app.entity.CarritoItem;
-import com.cibertec.app.entity.Presentacion;
-import com.cibertec.app.entity.Producto;
-import com.cibertec.app.service.CatalogoService;
-import java.util.Objects;
 
 import java.util.Map;
 
@@ -66,9 +61,30 @@ public class CarritoController {
 	@PostMapping("/carrito/vaciar")
 	public String vaciar(HttpSession session) {
 
-		session.removeAttribute("carrito");
+		synchronized (WebUtils.getSessionMutex(session)) {
+			session.removeAttribute("carrito");
+		}
 
 		return "redirect:/carrito";
+	}
+
+	@PostMapping("/carrito/modificar")
+	public String modificar(@RequestParam("lineaId") String lineaId,
+	        @RequestParam("accion") String accion, HttpSession session,
+	        RedirectAttributes avisos) {
+	    synchronized (WebUtils.getSessionMutex(session)) {
+	        Object guardado = session.getAttribute("carrito");
+	        List<CarritoItem> actuales = guardado instanceof List<?> lista
+	                ? lista.stream().map(CarritoItem.class::cast).toList() : List.of();
+	        try {
+	            List<CarritoItem> resultado = carritoService.modificarLinea(lineaId, accion, actuales);
+	            session.setAttribute("carrito", resultado);
+	            avisos.addFlashAttribute("exito", "Carrito actualizado.");
+	        } catch (IllegalArgumentException ex) {
+	            avisos.addFlashAttribute("error", ex.getMessage());
+	        }
+	    }
+	    return "redirect:/carrito";
 	}
 
 	@PostMapping(
