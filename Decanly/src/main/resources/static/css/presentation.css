@@ -104,3 +104,33 @@
 .skip-link:not(:focus) { clip-path: inset(50%); width: 1px; height: 1px; overflow: hidden; padding: 0; }
 .home-packs .promo-includes li { flex-wrap: wrap; }
 .home-packs .promo-includes li span { white-space: normal; }
+
+/* Carrito: imagen e información en una misma fila, con la tipografía de la tienda. */
+.cart-page .cart-section { padding-top: 15px; }
+.cart-page .cart-layout { align-items: start; }
+.cart-selection, .cart-item-info, .cart-summary { min-width: 0; }
+.cart-page .cart-row { grid-template-columns: 120px minmax(0, 1fr) auto; gap: 24px; padding: 24px 0; }
+.cart-page .cart-image { display: block; align-self: start; background: #f6f6f4; }
+.cart-page .cart-image img { display: block; width: 120px; height: 140px; object-fit: contain; }
+.cart-item-info h2 { font-size: 23px; line-height: 1.2; letter-spacing: -.6px; margin: 0 0 8px; overflow-wrap: anywhere; }
+.cart-page .cart-item-meta { font-size: 14px; color: var(--blue); margin: 0 0 8px; }
+.cart-page .cart-unit-price { font-size: 12px; color: var(--muted); margin: 0 0 12px; }
+.cart-page .cart-item-quantity { margin: 0; font-size: 14px; }
+.cart-page .cart-item-total { font-size: 17px; white-space: nowrap; }
+.cart-selection-actions { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px 24px; margin-top: 20px; }
+.cart-selection-actions .text-link { min-height: 44px; }
+.cart-summary .summary-row > :first-child { min-width: 0; overflow-wrap: anywhere; }
+.cart-summary .summary-row > :last-child { flex-shrink: 0; white-space: nowrap; }
+.cart-summary .field { max-width: 100%; }
+.cart-summary .checkout-form { scroll-margin-top: 24px; }
+@media (max-width: 1100px) {
+  .cart-page .cart-layout { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 760px) {
+  .cart-page .cart-row { grid-template-columns: 84px minmax(0, 1fr); gap: 8px 16px; padding: 20px 0; }
+  .cart-page .cart-image { grid-row: 1 / 3; }
+  .cart-page .cart-image img { width: 84px; height: 108px; }
+  .cart-item-info h2 { font-size: 18px; }
+  .cart-page .cart-item-meta { font-size: 12px; }
+  .cart-page .cart-item-total { grid-column: 2; font-size: 16px; }
+}
