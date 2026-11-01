@@ -5,6 +5,7 @@ import java.util.Map;
 import com.cibertec.app.entity.RolUsuario;
 import com.cibertec.app.entity.Usuario;
 import com.cibertec.app.service.UsuarioService;
+import com.cibertec.app.security.LoginBloqueadoException;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,6 +26,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -116,14 +118,10 @@ public class SesionController {
 
         try {
 
-            Authentication autenticacion =
-                    authenticationManager.authenticate(
-                            UsernamePasswordAuthenticationToken
-                                    .unauthenticated(
-                                            datos.email().trim(),
-                                            datos.password()
-                                    )
-                    );
+            var solicitud = UsernamePasswordAuthenticationToken.unauthenticated(
+                    datos.email().trim(), datos.password());
+            solicitud.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            Authentication autenticacion = authenticationManager.authenticate(solicitud);
 
             Usuario usuario = usuarioService
                     .buscarPorCorreo(autenticacion.getName())
@@ -157,6 +155,11 @@ public class SesionController {
                     )
             );
 
+        } catch (LoginBloqueadoException ex) {
+            SecurityContextHolder.clearContext();
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .header("Retry-After", Long.toString(ex.getSegundosRestantes()))
+                    .body(Map.of("message", ex.getMessage()));
         } catch (AuthenticationException ex) {
 
             SecurityContextHolder.clearContext();

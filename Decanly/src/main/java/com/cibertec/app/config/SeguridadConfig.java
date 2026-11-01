@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -20,6 +21,9 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.security.web.context.SecurityContextRepository;
 
 import com.cibertec.app.service.impl.UsuarioServiceImpl;
+import com.cibertec.app.security.IntentosLogin;
+import com.cibertec.app.security.LoginBloqueadoException;
+import com.cibertec.app.security.ProveedorLoginProtegido;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -32,21 +36,21 @@ public class SeguridadConfig {
     }
 
     @Bean
-    public DaoAuthenticationProvider authenticationProvider(
+    public AuthenticationProvider authenticationProvider(
             UsuarioServiceImpl usuarioService,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder, IntentosLogin intentos) {
 
         DaoAuthenticationProvider provider =
             new DaoAuthenticationProvider(usuarioService);
 
         provider.setPasswordEncoder(passwordEncoder);
 
-        return provider;
+        return new ProveedorLoginProtegido(provider, intentos, usuarioService);
     }
 
     @Bean
     public AuthenticationManager authenticationManager(
-            DaoAuthenticationProvider provider) {
+            AuthenticationProvider provider) {
         return new ProviderManager(provider);
     }
 
@@ -58,11 +62,11 @@ public class SeguridadConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
-            DaoAuthenticationProvider provider,
+            AuthenticationManager authenticationManager,
             SecurityContextRepository repository) throws Exception {
 
         http
-            .authenticationProvider(provider)
+            .authenticationManager(authenticationManager)
 
             .securityContext(context ->
                 context.securityContextRepository(repository)
@@ -159,7 +163,14 @@ public class SeguridadConfig {
     .usernameParameter("correo")
     .passwordParameter("clave")
     .defaultSuccessUrl("/producto", true)
-    .failureUrl("/cuenta?error")
+    .failureHandler((request, response, exception) -> {
+        if (exception instanceof LoginBloqueadoException bloqueo) {
+            response.setHeader("Retry-After", Long.toString(bloqueo.getSegundosRestantes()));
+            response.sendRedirect(request.getContextPath() + "/cuenta?bloqueado");
+        } else {
+            response.sendRedirect(request.getContextPath() + "/cuenta?error");
+        }
+    })
     .permitAll()
 )
 

@@ -58,6 +58,13 @@
                 Has cerrado sesión correctamente.
             </p>
 
+            <p th:if="${param.bloqueado}"
+               class="form-feedback error"
+               role="alert">
+                Demasiados intentos fallidos. El acceso está bloqueado temporalmente.
+                Inténtalo de nuevo más tarde.
+            </p>
+
             <form id="login"
                   method="post"
                   th:action="@{/cuenta/login}">
