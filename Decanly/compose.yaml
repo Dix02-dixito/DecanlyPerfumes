@@ -16,6 +16,7 @@ services:
         read_only: true
         bind:
           create_host_path: false
+      - ./database/002-pedidos-manuales.sql:/opt/decanly/pedidos-manuales.sql:ro
       - ./deploy/10-import-database.sh:/docker-entrypoint-initdb.d/10-import-database.sh:ro
       - ./deploy/20-restrict-user.sh:/docker-entrypoint-initdb.d/20-restrict-user.sh:ro
     healthcheck:

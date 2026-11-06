@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="es-PE" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Nuevo pedido')}"><title>Nuevo pedido</title></head>
+<body>
+<div th:replace="~{fragments/layout :: cabecera}"></div>
+<main id="app" class="orders-page" tabindex="-1">
+    <section class="admin-shell">
+        <aside th:replace="~{fragments/admin :: sidebar}"></aside>
+        <div class="admin-main">
+            <div class="admin-heading">
+                <div><span class="eyebrow">Registro de ventas</span><h1>Nuevo pedido.</h1></div>
+                <a class="btn light" th:href="@{/pedidos}">Volver a pedidos</a>
+            </div>
+            <p class="notice">Registra una venta ya completada y pagada. El ID del pedido se generará al guardar.</p>
+            <p class="notice order-error" role="alert" th:if="${error != null}" th:text="${error}"></p>
+            <form id="pedido-manual" th:action="@{/pedidos}" th:object="${pedidoForm}" method="post">
+                <input type="hidden" th:field="*{token}" />
+                <section class="panel">
+                    <h2>Datos del cliente y fecha</h2>
+                    <div class="form-grid">
+                        <label>Nombre del cliente<input class="field" th:field="*{nombreCliente}" minlength="2" maxlength="120" autocomplete="name" required /></label>
+                        <label>Teléfono<input class="field" th:field="*{telefono}" type="tel" pattern="\+?[0-9]{9,15}" maxlength="16" autocomplete="tel" required /></label>
+                        <label>Fecha del pedido<input class="field" th:field="*{fechaPedido}" type="date" min="1000-01-01" th:max="${hoy}" required /></label>
+                    </div>
+                </section>
+                <section class="panel">
+                    <h2>Productos del pedido</h2>
+                    <p class="hint">El precio se carga del catálogo. Puedes ajustarlo al precio unitario antes de descuentos que tuvo esta venta.</p>
+                    <div id="pedido-lineas">
+                        <fieldset class="order-line" th:each="linea, estado : *{lineas}">
+                            <legend th:text="|Perfume ${estado.count}|"></legend>
+                            <div class="order-line-fields">
+                                <label class="order-product-label">Perfume
+                                    <select class="field order-product" th:field="*{lineas[__${estado.index}__].productoId}" required>
+                                        <option value="">Selecciona un perfume</option>
+                                        <option th:each="p : ${productosPedido}" th:value="${p.id}" th:text="${p.nombre}"></option>
+                                    </select>
+                                </label>
+                                <label>Presentación<select class="field order-size" th:field="*{lineas[__${estado.index}__].ml}" required><option value="3">3 ml</option><option value="5">5 ml</option><option value="10">10 ml</option></select></label>
+                                <label>Cantidad<input class="field order-qty" th:field="*{lineas[__${estado.index}__].cantidad}" type="number" min="1" max="9999" step="1" inputmode="numeric" required /></label>
+                                <label>Precio unitario (S/)<input class="field order-price" th:field="*{lineas[__${estado.index}__].precioUnitario}" type="number" min="0.01" max="99999999.99" step="0.01" inputmode="decimal" required /></label>
+                            </div>
+                            <div class="order-line-bottom"><span class="hint order-stock"></span><button class="text-link order-remove" type="submit" name="accion" th:value="|quitar:${estado.index}|" formnovalidate>Quitar perfume</button></div>
+                        </fieldset>
+                    </div>
+                    <button class="btn light" id="pedido-agregar" type="submit" name="accion" value="agregar" formnovalidate>Añadir perfume</button>
+                </section>
+                <section class="panel order-summary">
+                    <h2>Importes del pedido</h2>
+                    <label for="descuento">Descuento total (S/)</label>
+                    <input class="field" th:field="*{descuento}" type="number" min="0" max="99999999.99" step="0.01" inputmode="decimal" aria-describedby="descuento-ayuda" required />
+                    <p class="hint" id="descuento-ayuda">Ingresa la rebaja total de esta venta, incluyendo descuentos de promociones o packs. Usa 0 si no hubo descuento.</p>
+                    <div class="order-totals" aria-live="polite" aria-atomic="true">
+                        <div class="summary-row"><span>Subtotal</span><output id="preview-subtotal">S/ 0.00</output></div>
+                        <div class="summary-row"><span>Descuentos</span><output id="preview-descuento">S/ 0.00</output></div>
+                        <div class="summary-row total"><strong>Total</strong><output id="preview-total">S/ 0.00</output></div>
+                    </div>
+                    <noscript><p class="notice">Los importes se calcularán al guardar el pedido. Introduce el precio unitario de cada presentación.</p></noscript>
+                    <div class="order-save"><button class="btn" type="submit" name="accion" value="guardar">Registrar pedido</button><a class="text-link" th:href="@{/pedidos}">Volver sin guardar</a></div>
+                </section>
+            </form>
+        </div>
+    </section>
+</main>
+<div th:replace="~{fragments/layout :: pie}"></div>
+<script th:inline="javascript">const catalogoPedidos = /*[[${productosPedido}]]*/ [];</script>
+<script th:src="@{/js/pedidos.js}" defer></script>
+</body>
+</html>

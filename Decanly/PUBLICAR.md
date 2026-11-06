@@ -7,7 +7,7 @@ El Dockerfile compila y prueba el proyecto con Maven 3.9.16 y ejecuta Java con u
 
 `database/001-schema.sql` contiene ahora la **base completa verificada**, con las tablas, productos, imágenes y usuarios originales. Sustituye al esquema vacío anterior y está incluido en GitHub para descargarlo. Se conserva el nombre del archivo para mantener la ruta que usa Docker. **Solo debe ejecutarse al instalar una base nueva y vacía; no reemplaces con él una base con cambios o pedidos posteriores.** Las fotos se guardan en `imagen` y sus relaciones en `producto_imagen`.
 
-Se comprobó `DecanlysqlNuevo.sql`, del commit `9751147`, en una instancia aislada de MySQL 8.4: contiene 50 productos, 150 presentaciones, 50 imágenes, 21 marcas, 9 promociones y 2 usuarios. El esquema es compatible con la aplicación y no necesita ALTER TABLE. Las imágenes conservan sus hashes SHA-256. Esa copia no contiene pedidos ni fotos adicionales de galería. La importación fuerza UTF-8 (`utf8mb4`) para conservar «Día» y demás acentos; sin ello, el cliente de MySQL del contenedor rechazaba productos por la restricción `chk_producto_ocasion`.
+Se comprobó `DecanlysqlNuevo.sql`, del commit `9751147`, en una instancia aislada de MySQL 8.4: contiene 50 productos, 150 presentaciones, 50 imágenes, 21 marcas, 9 promociones y 2 usuarios. Para la versión con pedidos manuales, las bases anteriores requieren la migración `database/002-pedidos-manuales.sql` descrita abajo. Las imágenes conservan sus hashes SHA-256. Esa copia no contiene pedidos ni fotos adicionales de galería. La importación fuerza UTF-8 (`utf8mb4`) para conservar «Día» y demás acentos; sin ello, el cliente de MySQL del contenedor rechazaba productos por la restricción `chk_producto_ocasion`.
 
 Las cuentas ADMIN y VENDEDOR se conservan con sus hashes BCrypt originales. La aplicación actual permite iniciar sesión únicamente a ADMIN. La cuenta `admin@decanly.local` creada para la base vacía de prueba anterior no pertenece a tu SQL y no se añade al importarlo. Las contraseñas existentes no se pueden recuperar a partir de sus hashes.
 
@@ -16,6 +16,27 @@ El propietario ha solicitado incluir en GitHub esta copia completa para poder de
 Si tu base local ya tiene cambios posteriores, exporta nuevamente estructura y datos, incluyendo BLOB, y verifica una restauración antes de migrar. No se han modificado bases externas.
 
 En producción Hibernate usa `validate`: verifica el esquema y no crea, modifica ni borra tablas. Los usuarios y contraseñas ya existentes se conservan.
+
+## Actualizar una base existente: pedidos manuales
+
+Antes de ejecutar esta versión, respalda la base y ejecuta **una vez** `database/002-pedidos-manuales.sql` con un usuario MySQL con permiso para ALTER TABLE. También está disponible en `../basededatos/002-pedidos-manuales.sql` para descargar desde GitHub. El script se puede repetir: conserva pedidos, detalles, stock, productos, imágenes y usuarios.
+
+En Windows, abre el archivo en tu editor SQL conectado a MySQL y ejecútalo completo. No vuelvas a importar `001-schema.sql` sobre una base existente. En Docker, con los archivos actualizados:
+
+```powershell
+docker compose -p decanly-catalogo stop web
+docker compose -p decanly-catalogo up -d db
+docker compose -p decanly-catalogo exec db sh -c 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql -uroot --default-character-set=utf8mb4 decanly < /opt/decanly/pedidos-manuales.sql'
+docker compose -p decanly-catalogo up --build -d web
+```
+
+Usa el nombre real de tu proyecto Compose si es diferente. No elimines el volumen. La instalación nueva con el SQL incluido ya tiene los campos; la inicialización de Docker también ejecuta la migración para admitir exportaciones anteriores en `DB_INIT_SQL`.
+
+El administrador entra en **Pedidos → Nuevo pedido** y registra nombre, teléfono, fecha real, perfumes, tamaños, cantidades y precios unitarios antes de descuentos. El catálogo propone el precio actual, que puede ajustarse al de una venta anterior. El descuento se introduce en soles como rebaja total de la venta, incluidas promociones y packs. El servidor calcula subtotal y total, genera el ID y descuenta stock en una misma transacción. Un reenvío del mismo formulario no crea una segunda venta. Solo se registran ventas completadas y pagadas; no se incluye envío ni un selector de estados.
+
+La fecha de venta usa la hora de Perú y puede ser anterior a hoy. Se conserva por separado la fecha de registro. Los nombres y precios de los productos quedan guardados en los nuevos detalles. El listado y el detalle mantienen los pedidos anteriores como **Registro anterior**; su subtotal original y descuentos aparecen como no registrados, porque el sistema anterior solo guardaba precios finales. No se reclasifican como ventas pagadas ni se vuelve a descontar su stock. Esta entrega no incorpora un dashboard ni acciones para editar o anular ventas.
+
+El carrito sigue permitiendo productos y packs; **Solicitar por WhatsApp** solo prepara un mensaje con la selección validada. No crea pedidos, no reserva stock y no vacía el carrito. La ruta anterior `/pedido/registrar` conserva esa función de solicitud; el alta real es el POST privado `/pedidos`, con permiso ADMIN, CSRF y protección contra reenvíos. Los antiguos cambios de estado y cancelación ya no son rutas del módulo.
 
 ## Windows: instalar con tu catálogo real
 
@@ -70,7 +91,7 @@ Hace falta elegir un alojamiento con Docker/Java, almacenamiento persistente par
 - El formulario `/cuenta/login` y la API `/api/sesion` comparten un límite de cinco fallos por correo normalizado e IP en una ventana de 15 minutos. Al quinto fallo se bloquea esa combinación durante 15 minutos; `LOGIN_LOCK_SECONDS` permite ajustar la duración. Una contraseña correcta antes del bloqueo reinicia el contador, y los intentos durante el bloqueo no prolongan su duración. Cambiar de sesión o pasar del formulario a la API no evita el bloqueo. La API responde 429 con `Retry-After`; el formulario muestra un aviso.
 - Este contador está en memoria de cada instancia Java y se reinicia cuando la aplicación se reinicia. La implementación corresponde al despliegue actual con una instancia: antes de escalar a varias réplicas o si se exige conservar bloqueos tras reinicios, hay que compartir y persistir el contador (por ejemplo, en Redis o MySQL). No guarda contraseñas. El almacén está limitado a 10 000 combinaciones; no expulsa bloqueos vigentes para admitir otras nuevas.
 - La IP procede de la dirección remota de la solicitud. Como el perfil `prod` procesa cabeceras de proxy, publica solo detrás de un proxy de confianza que sustituya las cabeceras `Forwarded`/`X-Forwarded-*`. Configura también límites globales de peticiones en el alojamiento; el bloqueo por correo e IP no sustituye esa protección ni impide intentos desde otras direcciones.
-- La limitación de pedidos automáticos a `/pedido/registrar` queda pendiente. Los estados y cancelaciones siguen a cargo del administrador. CSRF y los permisos de administración permanecen activos.
+- El carrito ya no puede registrar pedidos ni descontar stock. Solo ADMIN registra ventas completadas en `/pedidos`. Conserva límites de peticiones en el alojamiento para las rutas públicas de solicitud y consulta; CSRF y los permisos de administración permanecen activos.
 
 Para una demostración desde Windows, con Docker Desktop y la aplicación arrancados:
 
@@ -86,6 +107,6 @@ Antes de compartir la dirección HTTPS del túnel, activa `COOKIE_SECURE=true` y
 
 Programa exportaciones completas en el alojamiento y verifica una restauración, incluyendo fotos y pedidos. Mantén las copias fuera del repositorio y del mismo disco del servidor. Para una copia local desde Windows utiliza la exportación de MySQL Workbench o `cmd /c` si rediriges un volcado; algunas versiones de PowerShell pueden alterar su codificación.
 
-Comprueba en la URL pública: catálogo e imágenes, selección 3/5/10 ml, carrito, pedido guardado sin tarifa automática de envío, redirección a WhatsApp 51907032488, login/logout, edición de productos y rechazo de accesos sin autorización. Comprueba también las cookies Secure sobre HTTPS. No compartas el administrador con quienes solo van a revisar el catálogo.
+Comprueba en la URL pública: catálogo e imágenes, selección 3/5/10 ml, carrito, solicitud por WhatsApp 51907032488 sin guardar pedido ni alterar stock, alta manual como ADMIN con importes y existencias correctos, login/logout, edición de productos y rechazo de accesos sin autorización. Comprueba también las cookies Secure sobre HTTPS. No compartas el administrador con quienes solo van a revisar el catálogo.
 
 Antes de publicar, confirma que el catálogo, los precios, el stock, los descuentos, las condiciones de entrega y los textos de privacidad/venta estén actualizados. El código y la instalación local no publican por sí solos un sitio ni garantizan la configuración del proveedor.

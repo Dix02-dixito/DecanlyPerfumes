@@ -21,7 +21,7 @@ import com.cibertec.app.validation.PedidoValidador;
 class EnvioPedidoTest {
     @ParameterizedTest
     @CsvSource({"15.00", "148.99", "149.00", "149.01", "200.00"})
-    void carritoYRegistroNoAgreganTarifaDeEnvio(String precio) {
+    void carritoYSolicitudNoAgreganTarifaNiCreanPedidos(String precio) {
         var producto = new Producto();
         producto.setId(1L);
         producto.setNombre("Perfume de prueba");
@@ -48,19 +48,13 @@ class EnvioPedidoTest {
         var presentaciones = mock(PresentacionRepository.class);
         var packs = mock(PackRepository.class);
         var catalogo = mock(CatalogoService.class);
-        when(productos.bloquearPorId(1L)).thenReturn(Optional.of(producto));
-        when(presentaciones.bloquearPorProductoYml(1L, 5)).thenReturn(Optional.of(presentacion));
-        when(pedidos.save(any(Pedido.class))).thenAnswer(invocacion -> {
-            Pedido pedido = invocacion.getArgument(0);
-            assertEquals(0, new BigDecimal(precio).compareTo(pedido.getTotalPedido()));
-            assertEquals(5, pedido.getDetalles().get(0).getMl());
-            assertEquals(0, new BigDecimal(precio).compareTo(pedido.getDetalles().get(0).getPrecio()));
-            pedido.setId(1L);
-            return pedido;
-        });
+        when(productos.findById(1L)).thenReturn(Optional.of(producto));
+        when(presentaciones.findByProducto_IdAndMl(1L, 5)).thenReturn(Optional.of(presentacion));
         var servicio = new PedidoServiceImpl(pedidos, productos, presentaciones, packs, catalogo, new PedidoValidador());
-        assertEquals(1L, servicio.registrar("Cliente de prueba", "999888777", "Av. Prueba 123", true, carrito));
-        verify(pedidos).save(any(Pedido.class));
-        assertEquals(1, presentacion.getStock());
+        Pedido solicitud = servicio.prepararSolicitud("Cliente de prueba", "999888777", "Av. Prueba 123", true, carrito);
+        assertEquals(0, new BigDecimal(precio).compareTo(solicitud.getTotalPedido()));
+        assertNull(solicitud.getId());
+        verifyNoInteractions(pedidos);
+        assertEquals(2, presentacion.getStock());
     }
 }

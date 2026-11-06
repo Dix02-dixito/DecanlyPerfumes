@@ -36,13 +36,12 @@ public class WhatsAppService {
                 .collect(Collectors.joining("\n"));
 
         String mensaje = """
-                 ¡Hola! Confirma tu pedido en Decanly
+                 ¡Hola! Quiero consultar esta selección de Decanly
 
-                 Pedido: #%s
                  Cliente: %s
                  WhatsApp: %s
 
-                 Tu pedido
+                 Mi selección
                 %s
 
                  Total de productos: S/ %s
@@ -50,9 +49,8 @@ public class WhatsAppService {
 
                  Dirección: %s
 
-                 Confirmo que mis datos son correctos y que recibiré y pagaré el pedido contra entrega.
+                 Quisiera confirmar disponibilidad y coordinar la compra. Esta solicitud no reserva productos.
                 """.formatted(
-                        pedido.getId(),
                         pedido.getNombreCliente(),
                         pedido.getTelefono(),
                         productos,
