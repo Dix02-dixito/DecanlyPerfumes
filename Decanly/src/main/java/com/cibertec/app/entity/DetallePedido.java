@@ -37,6 +37,13 @@ public class DetallePedido {
             precision = 10, scale = 2)
     private BigDecimal precio;
 
+    @Column(name = "nombreproducto", length = 100)
+    private String nombreProducto;
+
+    public String getNombrePerfume() {
+        return nombreProducto != null ? nombreProducto : producto.getNombre();
+    }
+
     public BigDecimal getSubtotal() {
         return precio.multiply(BigDecimal.valueOf(cantidad));
     }

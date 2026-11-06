@@ -85,7 +85,8 @@
                         <strong th:text="'S/ ' + ${#numbers.formatDecimal(total,1,2,'POINT')}"></strong>
                     </div>
                     <form class="checkout-form" id="datos-pedido" th:action="@{/pedido/registrar}" method="post">
-                        <h3>Datos de tu pedido</h3>
+                        <h3>Datos para tu solicitud</h3>
+                        <p class="hint">Enviar la solicitud no registra una compra ni reserva stock.</p>
 
                         <label for="nombre">Nombre completo</label>
                         <input class="field" id="nombre" name="nombreCliente" maxlength="120" minlength="2"
@@ -103,14 +104,14 @@
                             <input type="checkbox" name="aceptaTerminos" value="true" required />
 
                             <span>
-                                Confirmo que mis datos son correctos y que recibiré
-                                y pagaré el pedido contra entrega.
+                                Confirmo que mis datos son correctos y deseo consultar
+                                disponibilidad con el vendedor.
                                 Acepto los
                                 <a th:href="@{/terminos}">términos y condiciones</a>.
                             </span>
                         </label>
 
-                        <button class="btn" type="submit">Confirmar pedido <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 12h16m-6-6 6 6-6 6" /></svg></button>
+                        <button class="btn" type="submit">Solicitar por WhatsApp <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 12h16m-6-6 6 6-6 6" /></svg></button>
                     </form>
                 </aside>
             </div>

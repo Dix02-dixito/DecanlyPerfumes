@@ -102,7 +102,18 @@ CREATE TABLE pedido (
     direccion VARCHAR(250) NOT NULL,
     fechapedido DATETIME DEFAULT CURRENT_TIMESTAMP,
     estadopedido VARCHAR(20) DEFAULT 'PENDIENTE',
-    totalpedido DECIMAL(10,2) DEFAULT 0
+    totalpedido DECIMAL(10,2) DEFAULT 0,
+    subtotalpedido DECIMAL(10,2) NULL,
+    descuentopedido DECIMAL(10,2) NULL,
+    registro_manual BOOLEAN NOT NULL DEFAULT FALSE,
+    token_registro VARCHAR(36) NULL,
+    fecha_registro DATETIME NULL,
+    CONSTRAINT uq_pedido_token UNIQUE (token_registro),
+    CONSTRAINT chk_pedido_manual CHECK (registro_manual = FALSE OR
+        (subtotalpedido IS NOT NULL AND descuentopedido IS NOT NULL AND
+         subtotalpedido >= 0 AND descuentopedido >= 0 AND descuentopedido <= subtotalpedido AND
+         totalpedido IS NOT NULL AND totalpedido = subtotalpedido - descuentopedido AND
+         token_registro IS NOT NULL AND fecha_registro IS NOT NULL))
 );
 
 CREATE TABLE detallepedido (
@@ -114,6 +125,7 @@ CREATE TABLE detallepedido (
     ml INT NOT NULL,
     cantidad INT NOT NULL,
     precio DECIMAL(10,2) NOT NULL,
+    nombreproducto VARCHAR(100) NULL,
 
     CONSTRAINT fk_detalle_pedido
         FOREIGN KEY (pedidoid)

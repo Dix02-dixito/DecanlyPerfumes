@@ -69,7 +69,7 @@ class CarritoEdicionTest {
     }
 
     @Test
-    void cantidadesEditadasLleganAlTotalDetalleStockYWhatsApp() {
+    void cantidadesEditadasLleganAWhatsAppSinRegistrarNiDescontarStock() {
         List<CarritoItem> seleccion = carrito.agregarProducto(1L, 5, 1, List.of());
         String id = seleccion.get(0).getLineaId();
         seleccion = carrito.modificarLinea(id, "aumentar", seleccion);
@@ -85,12 +85,12 @@ class CarritoEdicionTest {
         var model = new ExtendedModelMap();
         new TiendaController().carrito(session, model);
         assertEquals(new BigDecimal("78.00"), model.get("total"));
-        Pedido pedido = registrar(seleccion);
+        Pedido pedido = solicitar(seleccion);
         assertEquals(1, pedido.getDetalles().size());
         assertEquals(2, pedido.getDetalles().get(0).getCantidad());
         assertEquals(5, pedido.getDetalles().get(0).getMl());
         assertEquals(new BigDecimal("78.00"), pedido.getTotalPedido());
-        assertEquals(18, productos.get(1L).buscarPresentacion(5).getStock());
+        assertEquals(20, productos.get(1L).buscarPresentacion(5).getStock());
         assertEquals(20, productos.get(1L).buscarPresentacion(3).getStock());
         String mensaje = URLDecoder.decode(new WhatsAppService("51907032488").crearEnlace(pedido), StandardCharsets.UTF_8);
         assertTrue(mensaje.contains("Perfume 1 — 5 ml × 2"));
@@ -181,7 +181,7 @@ class CarritoEdicionTest {
     }
 
     @Test
-    void promocionesSeRepitenYQuitanCompletasYElPedidoConservaSuDescuento() {
+    void promocionesSeRepitenYQuitanCompletasYLaSolicitudConservaSuDescuento() {
         List<CarritoItem> original = carrito.agregarPromocion(9L, List.of());
         String id = original.get(0).getLineaId();
         List<CarritoItem> doble = carrito.modificarLinea(id, "aumentar", original);
@@ -192,7 +192,7 @@ class CarritoEdicionTest {
         assertEquals(3, restante.size());
         assertEquals(List.of(2, 1, 1), restante.stream().map(CarritoItem::getCantidad).toList());
         assertTrue(restante.stream().allMatch(i -> i.getPrecio().equals(new BigDecimal("35.10"))));
-        assertEquals(new BigDecimal("140.40"), registrar(restante).getTotalPedido());
+        assertEquals(new BigDecimal("140.40"), solicitar(restante).getTotalPedido());
     }
 
     @Test
@@ -204,7 +204,7 @@ class CarritoEdicionTest {
     }
 
     @Test
-    void packsPersonalizadosConservanSusTresPerfumesYSeRegistran() {
+    void packsPersonalizadosConservanSusTresPerfumesEnLaSolicitud() {
         List<CarritoItem> original = carrito.agregarPackPersonalizado(List.of(
                 new SeleccionPack(1L, 3, 1), new SeleccionPack(2L, 5, 2), new SeleccionPack(3L, 10, 1)), List.of());
         List<CarritoItem> doble = carrito.modificarLinea(original.get(1).getLineaId(), "aumentar", original);
@@ -213,7 +213,7 @@ class CarritoEdicionTest {
         List<CarritoItem> restante = carrito.modificarLinea(original.get(2).getLineaId(), "quitar", doble);
         assertEquals(3, restante.size());
         assertTrue(restante.stream().allMatch(CarritoItem::isPackPersonalizado));
-        assertEquals(new BigDecimal("140.40"), registrar(restante).getTotalPedido());
+        assertEquals(new BigDecimal("140.40"), solicitar(restante).getTotalPedido());
     }
 
     @Test
@@ -231,23 +231,21 @@ class CarritoEdicionTest {
         List<CarritoItem> actual = (List<CarritoItem>) sesion.getAttribute("carrito");
         assertEquals(2, actual.get(0).getCantidad());
         assertEquals(1, original.get(0).getCantidad());
-        assertEquals(new BigDecimal("78.00"), registrar(actual).getTotalPedido());
+        assertEquals(new BigDecimal("78.00"), solicitar(actual).getTotalPedido());
     }
 
-    private Pedido registrar(List<CarritoItem> seleccion) {
+    private Pedido solicitar(List<CarritoItem> seleccion) {
         PedidoRepository pedidos = mock(PedidoRepository.class);
         ProductoRepository repositorioProductos = mock(ProductoRepository.class);
         PresentacionRepository presentaciones = mock(PresentacionRepository.class);
         PackRepository packs = mock(PackRepository.class);
-        when(packs.bloquearPorId(9L)).thenReturn(Optional.of(promocion));
-        when(repositorioProductos.bloquearPorId(anyLong())).thenAnswer(i -> Optional.ofNullable(productos.get(i.getArgument(0))));
-        when(presentaciones.bloquearPorProductoYml(anyLong(), anyInt())).thenAnswer(i -> Optional.ofNullable(productos.get(i.getArgument(0)).buscarPresentacion(i.getArgument(1))));
-        Pedido[] guardado = new Pedido[1];
-        when(pedidos.save(any())).thenAnswer(i -> {
-            Pedido pedido = i.getArgument(0); pedido.setId(77L); guardado[0] = pedido; return pedido;
-        });
+        when(packs.findById(9L)).thenReturn(Optional.of(promocion));
+        when(repositorioProductos.findById(anyLong())).thenAnswer(i -> Optional.ofNullable(productos.get(i.getArgument(0))));
+        when(presentaciones.findByProducto_IdAndMl(anyLong(), anyInt())).thenAnswer(i -> Optional.ofNullable(productos.get(i.getArgument(0)).buscarPresentacion(i.getArgument(1))));
         var servicio = new PedidoServiceImpl(pedidos, repositorioProductos, presentaciones, packs, catalogo, new PedidoValidador());
-        assertEquals(77L, servicio.registrar("Prueba del carrito", "900000000", "Dirección de prueba 123", true, seleccion));
-        return guardado[0];
+        Pedido solicitud = servicio.prepararSolicitud("Prueba del carrito", "900000000", "Dirección de prueba 123", true, seleccion);
+        assertNull(solicitud.getId());
+        verifyNoInteractions(pedidos);
+        return solicitud;
     }
 }

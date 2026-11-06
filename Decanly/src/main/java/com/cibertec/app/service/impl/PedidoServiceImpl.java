@@ -4,6 +4,8 @@ package com.cibertec.app.service.impl;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;
+import java.util.Comparator;
+import com.cibertec.app.dto.PedidoFormulario;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -46,7 +48,8 @@ public class PedidoServiceImpl implements PedidoService {
 	private final PedidoValidador pedidoValidador;
 
 	@Override
-	public Long registrar(
+	@Transactional(readOnly = true)
+	public Pedido prepararSolicitud(
 	        String nombre,
 	        String telefono,
 	        String direccion,
@@ -59,19 +62,20 @@ public class PedidoServiceImpl implements PedidoService {
 	    validarPromociones(carrito);
 	    validarPacksPersonalizados(carrito);
 
-	    Map<Long, Producto> productos = bloquearProductos(
+	    Map<Long, Producto> productos = consultarProductos(
 	            carrito.stream()
 	                    .map(CarritoItem::getProductoId)
 	                    .toList());
 
 	    int descuentoPack = catalogo.descuentoPack();
+        Map<String, Integer> cantidades = new HashMap<>();
 
 	    Pedido pedido = new Pedido();
 	    pedido.setNombreCliente(nombre.trim());
 	    pedido.setTelefono(telefono.trim());
 	    pedido.setDireccion(direccion.trim());
 	    pedido.setFechaPedido(LocalDateTime.now());
-	    pedido.setEstadoPedido("PENDIENTE");
+	    // Una solicitud de WhatsApp no es una venta registrada.
 
 	    BigDecimal subtotal = BigDecimal.ZERO;
 
@@ -85,11 +89,12 @@ public class PedidoServiceImpl implements PedidoService {
 	        }
 
 	        Presentacion presentacion = presentacionRepository
-	                .bloquearPorProductoYml(producto.getId(), item.getMl())
+	                .findByProducto_IdAndMl(producto.getId(), item.getMl())
 	                .orElseThrow(() -> new IllegalArgumentException(
 	                        "La presentación seleccionada ya no existe."));
 
-	        if (presentacion.getStock() < item.getCantidad()) {
+	        int cantidadTotal = cantidades.merge(producto.getId() + ":" + item.getMl(), item.getCantidad(), Math::addExact);
+            if (presentacion.getStock() < cantidadTotal) {
 	            throw new IllegalArgumentException(
 	                    "Stock insuficiente de " + producto.getNombre()
 	                    + " de " + item.getMl() + " ml.");
@@ -116,6 +121,7 @@ public class PedidoServiceImpl implements PedidoService {
 
 	        DetallePedido detalle = new DetallePedido();
 	        detalle.setProducto(producto);
+            detalle.setNombreProducto(producto.getNombre());
 	        detalle.setMl(item.getMl());
 	        detalle.setCantidad(item.getCantidad());
 	        detalle.setPrecio(precio);
@@ -123,11 +129,10 @@ public class PedidoServiceImpl implements PedidoService {
 	        pedido.agregarDetalle(detalle);
 	        subtotal = subtotal.add(detalle.getSubtotal());
 
-	        presentacion.setStock(
-	                presentacion.getStock() - item.getCantidad());
+
 	    }
 
-	    // Solo se registra el importe de productos; el envío se coordina con el vendedor.
+	    // La solicitud incluye solo productos; la entrega se coordina con el vendedor.
 	    BigDecimal total = subtotal;
 
 	    if (total.compareTo(new BigDecimal("99999999.99")) > 0) {
@@ -137,16 +142,84 @@ public class PedidoServiceImpl implements PedidoService {
 
 	    pedido.setTotalPedido(total);
 
-	    return pedidoRepository.save(pedido).getId();
+	    return pedido;
 	}
 	
-	private Map<Long, Producto> bloquearProductos(List<Long> ids) {
+
+    @Override
+    public Long registrarManual(PedidoFormulario formulario) {
+        pedidoValidador.validarManual(formulario);
+        var existente = pedidoRepository.findByTokenRegistro(formulario.getToken());
+        if (existente.isPresent()) return existente.get().getId();
+
+        BigDecimal subtotal = formulario.getLineas().stream()
+                .map(l -> l.getPrecioUnitario().multiply(BigDecimal.valueOf(l.getCantidad())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2);
+        BigDecimal descuento = formulario.getDescuento().setScale(2);
+        if (subtotal.compareTo(PedidoValidador.MAXIMO) > 0 || descuento.compareTo(subtotal) > 0) {
+            throw new IllegalArgumentException("El descuento no puede superar el subtotal ni el pedido exceder S/ 99 999 999.99.");
+        }
+
+        // Siempre bloquea en el mismo orden. La transacción revierte tanto stock como pedido al fallar.
+        Map<Long, Producto> productos = new HashMap<>();
+        for (Long id : formulario.getLineas().stream().map(l -> l.getProductoId()).distinct().sorted().toList()) {
+            Producto producto = productoRepository.bloquearPorId(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Uno de los perfumes ya no existe."));
+            if (!producto.isActivo()) throw new IllegalArgumentException(producto.getNombre() + " no está activo.");
+            productos.put(id, producto);
+        }
+        Map<String, Presentacion> presentaciones = new HashMap<>();
+        Map<String, Integer> cantidades = new HashMap<>();
+        for (var linea : formulario.getLineas().stream()
+                .sorted(Comparator.comparing(PedidoFormulario.Linea::getProductoId)
+                        .thenComparing(PedidoFormulario.Linea::getMl)).toList()) {
+            String clave = linea.getProductoId() + ":" + linea.getMl();
+            Presentacion presentacion = presentaciones.computeIfAbsent(clave, k -> presentacionRepository
+                    .bloquearPorProductoYml(linea.getProductoId(), linea.getMl())
+                    .orElseThrow(() -> new IllegalArgumentException("La presentación seleccionada ya no existe.")));
+            int cantidad = cantidades.merge(clave, linea.getCantidad(), Math::addExact);
+            if (presentacion.getStock() < cantidad) {
+                throw new IllegalArgumentException("Stock insuficiente de " + productos.get(linea.getProductoId()).getNombre()
+                        + " de " + linea.getMl() + " ml.");
+            }
+        }
+
+        Pedido pedido = new Pedido();
+        pedido.setNombreCliente(formulario.getNombreCliente().trim());
+        pedido.setTelefono(formulario.getTelefono().trim());
+        pedido.setDireccion(""); // Campo anterior conservado para no alterar el historial.
+        pedido.setFechaPedido(formulario.getFechaPedido().atStartOfDay());
+        pedido.setFechaRegistro(LocalDateTime.now(PedidoValidador.ZONA_VENTA));
+        pedido.setEstadoPedido("ENTREGADO"); // Compatibilidad con la columna anterior, sin flujo de estados.
+        pedido.setRegistroManual(true); // Solo se registran ventas ya completadas y pagadas.
+        pedido.setTokenRegistro(formulario.getToken());
+        pedido.setSubtotalPedido(subtotal);
+        pedido.setDescuentoPedido(descuento);
+        pedido.setTotalPedido(subtotal.subtract(descuento));
+        for (var linea : formulario.getLineas()) {
+            DetallePedido detalle = new DetallePedido();
+            Producto producto = productos.get(linea.getProductoId());
+            detalle.setProducto(producto);
+            detalle.setNombreProducto(producto.getNombre());
+            detalle.setMl(linea.getMl());
+            detalle.setCantidad(linea.getCantidad());
+            detalle.setPrecio(linea.getPrecioUnitario().setScale(2));
+            pedido.agregarDetalle(detalle);
+        }
+        cantidades.forEach((clave, cantidad) -> {
+            Presentacion presentacion = presentaciones.get(clave);
+            presentacion.setStock(presentacion.getStock() - cantidad);
+        });
+        return pedidoRepository.saveAndFlush(pedido).getId();
+    }
+
+	private Map<Long, Producto> consultarProductos(List<Long> ids) {
 
 	    Map<Long, Producto> productos = new HashMap<>();
 
 	    for (Long id : ids.stream().distinct().sorted().toList()) {
 
-	        Producto producto = productoRepository.bloquearPorId(id)
+	        Producto producto = productoRepository.findById(id)
 	                .orElseThrow(() -> new IllegalArgumentException(
 	                        "Uno de los perfumes ya no existe."));
 
@@ -167,7 +240,7 @@ public class PedidoServiceImpl implements PedidoService {
 
 	    for (Long id : ids) {
 
-	        Pack pack = packRepository.bloquearPorId(id)
+	        Pack pack = packRepository.findById(id)
 	                .orElseThrow(() -> new IllegalArgumentException(
 	                        "Una promoción del carrito ya no existe."));
 
@@ -210,66 +283,6 @@ public class PedidoServiceImpl implements PedidoService {
 	    }
 	}
 
-	@Override
-	public void cancelar(Long id) {
-	    cambiarEstado(id, "CANCELADO");
-	}
-
-	@Override
-	public void cambiarEstado(Long id, String estado) {
-
-	    if (estado == null
-	            || !List.of("CONFIRMADO", "ENTREGADO", "CANCELADO")
-	                    .contains(estado)) {
-
-	        throw new IllegalArgumentException(
-	                "Selecciona un estado válido.");
-	    }
-
-	    Pedido pedido = pedidoRepository.bloquearPorId(id)
-	            .orElseThrow(() -> new IllegalArgumentException(
-	                    "El pedido no existe."));
-
-	    String actual = pedido.getEstadoPedido();
-
-	    if (estado.equals(actual)) {
-	        return;
-	    }
-
-	    boolean permitido =
-	            ("PENDIENTE".equals(actual)
-	                    && List.of("CONFIRMADO", "CANCELADO").contains(estado))
-	            || ("CONFIRMADO".equals(actual)
-	                    && List.of("ENTREGADO", "CANCELADO").contains(estado));
-
-	    if (!permitido) {
-	        throw new IllegalArgumentException(
-	                "No se puede pasar de " + actual + " a " + estado + ".");
-	    }
-
-	    if ("CANCELADO".equals(estado)) {
-
-	        bloquearProductos(
-	                pedido.getDetalles().stream()
-	                        .map(detalle -> detalle.getProducto().getId())
-	                        .toList());
-
-	        for (DetallePedido detalle : pedido.getDetalles()) {
-
-	            Presentacion presentacion = presentacionRepository
-	                    .bloquearPorProductoYml(
-	                            detalle.getProducto().getId(), detalle.getMl())
-	                    .orElseThrow(() -> new IllegalArgumentException(
-	                            "No se encontró una presentación del pedido."));
-
-	            presentacion.setStock(Math.addExact(
-	                    presentacion.getStock(), detalle.getCantidad()));
-	        }
-	    }
-
-	    pedido.setEstadoPedido(estado);
-	}
-	
 	@Override
 	@Transactional(readOnly = true)
 	public Pedido buscar(Long id) {

@@ -96,10 +96,9 @@ public class SeguridadConfig {
                     "/api/configuracion"
                 ).permitAll()
 
-                // Pedidos y reclamaciones de clientes invitados.
+                // Reclamaciones de clientes invitados.
                 .requestMatchers(
                     HttpMethod.POST,
-                    "/api/pedidos",
                     "/api/reclamaciones"
                 ).permitAll()
 
@@ -130,15 +129,18 @@ public class SeguridadConfig {
                     "/api/packs/**"
                 ).hasRole("ADMIN")
 
-                // Las demás operaciones de la API requieren sesión.
-                .requestMatchers("/api/**").authenticated()
+                // Los pedidos registrados son exclusivos del administrador.
                 .requestMatchers(
                         "/pedidos",
                         "/pedidos/**",
                         "/pedido/*/cancelar",
-                        "/pedido/*/estado"
-                ).hasAnyRole("ADMIN", "VENDEDOR")
+                        "/pedido/*/estado",
+                        "/api/pedidos",
+                        "/api/pedidos/**"
+                ).hasRole("ADMIN")
 
+                // Las demás operaciones de la API requieren sesión.
+                .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
             )
 

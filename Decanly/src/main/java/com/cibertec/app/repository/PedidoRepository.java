@@ -24,16 +24,16 @@ public interface PedidoRepository
 	   Optional<Pedido> buscarConDetalles(@Param("id") Long id);
 	   
 	   
+       @EntityGraph(attributePaths = {"detalles", "detalles.producto"})
 	   @Query("""
 		        select p from Pedido p
 		        where (:id is null or p.id = :id)
 		          and (:q = '' or lower(p.nombreCliente)
 		               like lower(concat('%', :q, '%')))
-		          and (:estado = '' or p.estadoPedido = :estado)
 		        order by p.id desc
 		        """)
 		List<Pedido> buscar(
 		        @Param("id") Long id,
-		        @Param("q") String q,
-		        @Param("estado") String estado);
+		        @Param("q") String q);
+    Optional<Pedido> findByTokenRegistro(String tokenRegistro);
 }
